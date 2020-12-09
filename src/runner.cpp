@@ -167,7 +167,7 @@ void run(int only_sid = -1, int arg = -1) {
 
       if (print_times) cout << "brutePieces time: " << now()-start_time << endl;
       start_time = now();
-      pieces = makePieces2(dags, train, out_sizes);
+      pieces = makePieces(dags, train, out_sizes);
       if (print_times) cout << "makePieces time: " << now()-start_time << endl;
     }
 

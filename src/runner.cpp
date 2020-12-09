@@ -158,20 +158,7 @@ void run(int only_sid = -1, int arg = -1) {
     //train.resize(1);
 
     vector<point> out_sizes = bruteSize(test_in, train);
-    /*if (add_flips) {
-      point predsz = out_sizes.back();
-      out_sizes.clear();
-      for (auto [in,out] : train)
-	out_sizes.push_back(out.sz);
-      out_sizes.push_back(predsz);
-      assert(out_sizes.size() == train.size()+1);
-      }*/
-    //vector<point> out_sizes = cheatSize(test_out, train); assert(!eval);
 
-    /*verdict[si] = (out_sizes.back() == test_out.sz ? 3 : 0);
-    scores[verdict[si]]++;
-    writeVerdict(si, s.id, verdict[si]);
-    continue;*/
     //Generate candidate pieces
     Pieces pieces;
     {

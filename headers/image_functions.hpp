@@ -1,6 +1,6 @@
 Image Col(int id);
 Image Pos(int dx, int dy);
-Image Square(int id);
+Image Square(int n);
 Image Line(int orient, int id);
 Image getPos(Image_ img);
 Image getSize(Image_ img);

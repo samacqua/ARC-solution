@@ -21,7 +21,7 @@ You can view a summary of the results with:
 It should give 129 / 419 correct predictions.
 
 To run using depth 3, change "run_depth" to 3 in run.py<br/>
-To run on the training dataset, change "sample_dir" to "training" on line 79 in src/runner.cpp, and set "inds = range(0,416)" in summary.py
+To run on the training dataset, change "bool training = true;" on line 86 in src/runner.cpp, and set "train=True" in summary.py
 
 
 ## Running on test data

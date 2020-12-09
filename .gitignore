@@ -8,3 +8,5 @@ output
 count_tasks
 run.dSYM/
 .vscode/
+.DS_Store
+.DS_Store?

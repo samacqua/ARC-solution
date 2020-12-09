@@ -10,24 +10,25 @@ using namespace std;
 // Functions that are searched over to generate the program
 // =========
 
-// 
+// create 1x1 of color
 Image Col(int id) {
   assert(id >= 0 && id < 10);
   return core::full({0,0}, {1,1}, id);
 }
 
-// 
+// create 1x1 at postion (dx, dy)
 Image Pos(int dx, int dy) {
   return core::full({dx,dy},{1,1});
 }
 
-// 
-Image Square(int id) {
-  assert(id >= 1);
-  return core::full({0,0}, {id,id});
+// create square of size id
+Image Square(int n) {
+  assert(n >= 1);
+  return core::full({0,0}, {n,n});
 }
 
-// 
+// create line of length id
+// orient = 0 -> x, orient = 1 -> y
 Image Line(int orient, int id) {
   assert(id >= 1);
   int w = id, h = 1;
@@ -35,55 +36,57 @@ Image Line(int orient, int id) {
   return core::full({0,0}, {w,h});
 }
 
-// 
+// create a 1x1 that at the position of the given image,
+//  and w color = majority color of the image
 Image getPos(Image_ img) {
   return core::full(img.p, {1,1}, core::majorityCol(img));
 }
 
-// 
+// create object w size of image
+//  and w color = majority color of the image
 Image getSize(Image_ img) {
   return core::full({0,0}, img.size, core::majorityCol(img));
 }
 
-// 
+// create image that is size, shape, and majority color of another image
 Image hull(Image_ img) {
   return core::full(img.p, img.size, core::majorityCol(img));
 }
 
-// 
+// set the shape's position to (0, 0)
 Image toOrigin(Image img) {
   img.p = {0,0};
   return img;
 }
 
-// 
+// get width of image
 Image getW(Image_ img, int id) {
   return core::full({0,0}, {img.w,id ? img.w : 1}, core::majorityCol(img));
 }
 
-// 
+// get height of image
 Image getH(Image_ img, int id) {
   return core::full({0,0}, {id ? img.h : 1, img.h}, core::majorityCol(img));
 }
 
-// 
+// copy image, but w color black
 Image hull0(Image_ img) {
   return core::full(img.p, img.size, 0);
 }
 
-// 
+// get size w position and color = 0
 Image getSize0(Image_ img) {
   return core::full({0,0}, img.size, 0);
 }
 
-// 
+// displace by x and y
 Image Move(Image img, Image_ p) {
   img.x += p.x;
   img.y += p.y;
   return img;
 }
 
-// 
+// erase all colors except for given palette of colors
 Image filterCol(Image_ img, Image_ palette) {
   Image ret = img;
   int palMask = core::colMask(palette);
@@ -94,7 +97,7 @@ Image filterCol(Image_ img, Image_ palette) {
   return ret;
 }
 
-// 
+// erase all colors except for given color
 Image filterCol(Image_ img, int id) {
   assert(id >= 0 && id < 10);
   if (id == 0) return invert(img);
@@ -110,10 +113,10 @@ Image broadcast(Image_ col, Image_ shape, int include0) { //include0 = 1
     int dh = shape.h/col.h, dw = shape.w/col.w;
     for (int ii = 0; ii < col.h; ii++) {
       for (int jj = 0; jj < col.w; jj++) {
-	int c = col(ii,jj);
-	for (int i = ii*dh; i < ii*dh+dh; i++)
-	  for (int j = jj*dw; j < jj*dw+dw; j++)
-	    ret(i,j) = c;
+        int c = col(ii,jj);
+        for (int i = ii*dh; i < ii*dh+dh; i++)
+          for (int j = jj*dw; j < jj*dw+dw; j++)
+            ret(i,j) = c;
       }
     }
     return ret;
@@ -137,28 +140,26 @@ Image broadcast(Image_ col, Image_ shape, int include0) { //include0 = 1
 
       int guess = !include0;
       for (int y = r0; y < r1; y++) {
-	double wy = min((double)y+1,r1)-max((double)y,r0);
-	for (int x = c0; x < c1; x++) {
-	  double wx = min((double)x+1,c1)-max((double)x,c0);
-	  char c = col(y,x);
-	  weight[c] += wx*wy;
-	  guess = c;
-	}
+        double wy = min((double)y+1,r1)-max((double)y,r0);
+        for (int x = c0; x < c1; x++) {
+          double wx = min((double)x+1,c1)-max((double)x,c0);
+          char c = col(y,x);
+          weight[c] += wx*wy;
+          guess = c;
+        }
       }
 
       if (weight[guess]*2 > tot) {
-	ret(i,j) = guess;
-	continue;
+        ret(i,j) = guess;
+        continue;
       }
 
       int maj = !include0;
       double w = weight[maj];
       for (int c = 1; c < 10; c++) {
-	if (weight[c] > w) maj = c, w = weight[c];
+	      if (weight[c] > w) maj = c, w = weight[c];
       }
       ret(i,j) = maj;
-      //point size = {max(c1-c0, 1), max(r1-r0, 1)};
-      //ret(i,j) = core::majorityCol(core::subImage(col, {c0,r0}, size), include0);
     }
   }
   return ret;

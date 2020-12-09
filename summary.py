@@ -1,4 +1,7 @@
 inds = range(0,419)
+train = False
+if train:
+    inds = range(0, 416)
 
 inds = list(inds)
 compressed = ''

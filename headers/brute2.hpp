@@ -43,7 +43,7 @@ struct Node {
 };
 
 
-struct Functions3 {
+struct Functions {
   vector<int> listed, cost;
   vector<string> names;
   vector<function<bool(const State&,State&)>> f_list;
@@ -61,7 +61,7 @@ struct Functions3 {
 
 
 struct DAG {
-  Functions3 funcs;
+  Functions funcs;
   //vector<Node> node;
   TinyNodeBank tiny_node;
   int givens;
@@ -83,4 +83,4 @@ struct DAG {
 
 
 struct Pieces;
-vector<DAG> brutePieces2(Image_ test_in, const vector<pair<Image,Image>>&train, vector<point> out_sizes);
+vector<DAG> brutePieces(Image_ test_in, const vector<pair<Image,Image>>&train, vector<point> out_sizes);

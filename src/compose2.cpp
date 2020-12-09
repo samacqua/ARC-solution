@@ -124,17 +124,9 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
     }
   }
 
-  //cout << active_mem.size() << endl;
-  //cout << bad_mem.size() << endl;
-  //exit(0);
-
   int max_piece_depth = 0;
   for (int i = 0; i < n; i++)
     max_piece_depth = max(max_piece_depth, pieces.piece[i].depth);
-
-  //mt19937 mrand(0);
-
-
 
   auto greedyComposeCore = [&](mybitset&cur, const mybitset&careMask, const int piece_depth_thres, vImage&ret) {
     vector<int> sparsej;
@@ -217,22 +209,9 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
     }
   };
 
-
-
-
-
-
-
-
-
   map<ull,Image> greedy_fill_mem;
 
   int maxiters = 10;
-
-
-  //vector<int> skip(img_ind.size());
-  //vector<int> order;
-  //for (int i = 0; i < img_ind.size(); i++) order.push_back(i);
 
   for (int pdt = max_piece_depth%10; pdt <= max_piece_depth; pdt += 10) {
     int piece_depth_thres = pdt;
@@ -248,10 +227,6 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
 	  caremask = 1<<maskv[it0];
 	} else {
 	  continue;
-	  /*caremask = 1<<maskv[mrand()%maskv.size()];
-	    for (int i = 0; i < n; i++)
-	    skip[i] = mrand()%3;
-	    random_shuffle(order.begin(), order.end());*/
 	}
 
 	mybitset cur(M), careMask(M);
@@ -268,7 +243,6 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
 	  }
 	}
 
-
 	int cnt_pieces = 0;
 	vector<int> piece_depths;
 	int sum_depth = 0, max_depth = 0;
@@ -282,7 +256,6 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
 	  cnt_pieces++;
 	  sum_depth += depth;
 	  max_depth = max(max_depth, depth);
-
 
 	  {
 	    greedy_fill_time.start();
@@ -331,8 +304,6 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
   return rets;
 }
 
-
-
 vector<Candidate> composePieces2(Pieces&pieces, vector<pair<Image, Image>> train, vector<point> out_sizes) {
   vector<Candidate> cands;
 
@@ -345,7 +316,6 @@ vector<Candidate> composePieces2(Pieces&pieces, vector<pair<Image, Image>> train
   }
   return cands;
 }
-
 
 vector<Candidate> evaluateCands(const vector<Candidate>&cands, vector<pair<Image,Image>> train) {
   vector<Candidate> ret;

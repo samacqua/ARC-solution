@@ -161,7 +161,7 @@ void run(int only_sid = -1, int arg = -1) {
     Pieces pieces;
     {
       double start_time = now();
-      vector<DAG> dags = brutePieces2(test_in, train, out_sizes);
+      vector<DAG> dags = brutePieces(test_in, train, out_sizes);
 
       if (print_times) cout << "brutePieces time: " << now()-start_time << endl;
       start_time = now();

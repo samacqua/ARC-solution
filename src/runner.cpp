@@ -65,6 +65,7 @@ void run(int only_sid = -1, int arg = -1) {
   //evalEvals(1);
   //deduceEvals();
 
+  // parse args
   int no_norm   = (arg >= 10 && arg < 20);
   int add_flips = (arg >= 20 && arg < 40);
   int add_flip_id = (arg >= 30 && arg < 40 ? 7 : 6);
@@ -73,31 +74,25 @@ void run(int only_sid = -1, int arg = -1) {
   MAXDEPTH = arg % 10 * 10;
 
   int eval = 0;
-
   int skips = 0;
 
-  string sample_dir = "evaluation";
+  // if training == true, set inds = range(0,416) in summary.py
+  // if training == false, set inds = range(0,419) in summary.py
+  bool training = false;
+  string sample_dir = (training) ? "training" : "evaluation";
+
   int samples = -1;
   if (eval) {
     sample_dir = "test";
-    samples = -1;
   }
 
-  /*vector<Sample> sample = readAll("evaluation", -1);
-  samples = sample.size();
-  sample = vector<Sample>(sample.begin()+samples-100,sample.end());*/
   vector<Sample> sample = readAll(sample_dir, samples);
-  //sample = vector<Sample>(sample.begin()+200, sample.begin()+300);
 
   int scores[4] = {};
-
   Visu visu;
-
   vector<int> verdict(sample.size());
-
   int dones = 0;
   Loader load(sample.size());
-
 
   assert(only_sid < sample.size());
   //Remember to fix Timers before running parallel
@@ -115,51 +110,49 @@ void run(int only_sid = -1, int arg = -1) {
     const Sample&s = sample[si];
 
     //Normalize sample
+    // this recolors the sample -- if visualizing set no_norm to false
     Simplifier sim = normalizeCols(s.train);
     if (no_norm) sim = normalizeDummy(s.train);
 
+    // get training pairs
     vector<pair<Image,Image>> train;
     for (auto&[in,out] : s.train) {
       train.push_back(sim(in,out));
     }
-    //auto base_train = train;
+
+    // for each training pair, add the pair flipped along diagonals
     if (add_flips) {
       for (auto&[in,out] : s.train) {
-	auto [rin,rout] = sim(in,out);
-	train.push_back({rigid(rin,add_flip_id),rigid(rout,add_flip_id)});
+        auto [rin,rout] = sim(in,out);
+        train.push_back({rigid(rin,add_flip_id),rigid(rout,add_flip_id)});
       }
     }
     auto [test_in,test_out] = sim(s.test_in, s.test_out);
 
     {
-      int insumsize = 0, outsumsize = 0, macols = 0;
+      int insumsize = 0, outsumsize = 0, maxcols = 0;
       int maxside = 0, maxarea = 0;
       for (auto&[in,out] : s.train) {
-	maxside = max({maxside, in.w, in.h, out.w, out.h});
-	maxarea = max({maxarea, in.w*in.h, out.w*out.h});
-	insumsize += in.w*in.h;
-	outsumsize += out.w*out.h;
-	macols = max(macols, __builtin_popcount(core::colMask(in)));
+        maxside = max({maxside, in.w, in.h, out.w, out.h});
+        maxarea = max({maxarea, in.w*in.h, out.w*out.h});
+        insumsize += in.w*in.h;
+        outsumsize += out.w*out.h;
+        maxcols = max(macols, __builtin_popcount(core::colMask(in)));
       }
       int sumsize = max(insumsize, outsumsize);
-      cerr << "Features: " << insumsize << ' ' << outsumsize << ' ' << macols << endl;
 
-      double w[4] = {1.2772523019346949, 0.00655104, 0.70820414, 0.00194519};
-      double expect_time3 = w[0]+w[1]*sumsize+w[2]*macols+w[1]*w[2]*sumsize*macols;
-      //MAXDEPTH = 2;//(expect_time3 < 30 ? 4 : 3);//sumsize < 20*20*3 ? 3 : 2;
+      cerr << "Features: " << insumsize << ' ' << outsumsize << ' ' << maxcols << endl;
       cerr << "MAXDEPTH: " << MAXDEPTH << endl;
-
 
       MAXSIDE = 100;
       MAXAREA = maxarea*2;
       MAXPIXELS = MAXAREA*5;
     }
-    //#warning Only 1 training example
-    //train.resize(1);
 
+    // get all predicted output sizes
     vector<point> out_sizes = bruteSize(test_in, train);
 
-    //Generate candidate pieces
+    // generate candidate pieces
     Pieces pieces;
     {
       double start_time = now();
@@ -171,39 +164,31 @@ void run(int only_sid = -1, int arg = -1) {
       if (print_times) cout << "makePieces time: " << now()-start_time << endl;
     }
 
+    // Print information about memory usage
     if (print_mem) {
       double size = 0, child = 0, other = 0, inds = 0, maps = 0;
       for (DAG&d : pieces.dag) {
-	/*for (Node&n : d.node) {
-	  for (Image_ img : n.state.vimg) {
-	    size += img.mask.size();
-	  }
-	  child += n.child.size()*8;
-	  other += sizeof(Node);
-	  }*/
-	other += sizeof(TinyNode)*d.tiny_node.size();
-	size += 4*d.tiny_node.bank.mem.size();
-	for (TinyNode&n : d.tiny_node.node) {
-	  if (n.child.size < TinyChildren::dense_thres)
-	    child += n.child.cap*8;
-	  else
-	    child += n.child.cap*4;
-	}
-	maps += 16*d.hashi.data.size()+4*d.hashi.table.size();
-	//maps += (d.hashi.bucket_count()*32+d.hashi.size()*16);
+        other += sizeof(TinyNode)*d.tiny_node.size();
+        size += 4*d.tiny_node.bank.mem.size();
+        for (TinyNode&n : d.tiny_node.node) {
+          if (n.child.size < TinyChildren::dense_thres)
+            child += n.child.cap*8;
+          else
+            child += n.child.cap*4;
+        }
+	      maps += 16*d.hashi.data.size()+4*d.hashi.table.size();
       }
       for (Piece3&p : pieces.piece) {
-	inds += sizeof(p);
+	      inds += sizeof(p);
       }
       inds += sizeof(pieces.mem[0])*pieces.mem.size();
       printf("Memory: %.1f + %.1f + %.1f + %.1f + %.1f MB\n", size/1e6, child/1e6, other/1e6, maps/1e6, inds/1e6);
-      //break;
     }
 
     for (DAG&d : pieces.dag) {
       d.hashi.clear();
       for (TinyNode&n : d.tiny_node.node) {
-	n.child.clear();
+	      n.child.clear();
       }
     }
 
@@ -224,7 +209,6 @@ void run(int only_sid = -1, int arg = -1) {
     int s2 = 0;
     if (!eval) s2 = scoreCands(cands, test_in, test_out);
 
-
     //Pick best candidates
     vector<Candidate> answers = cands;
 
@@ -233,17 +217,14 @@ void run(int only_sid = -1, int arg = -1) {
       vector<Candidate> filtered;
       set<ull> seen;
       for (const Candidate&cand : cands) {
-
-	//printf("%.20f\n", cand.score);
-
-	ull h = hashImage(cand.imgs.back());
-	if (seen.insert(h).second) {
-	  filtered.push_back(cand);
-	  if (filtered.size() == 3+skips*3) break;
-	}
+        ull h = hashImage(cand.imgs.back());
+        if (seen.insert(h).second) {
+          filtered.push_back(cand);
+          if (filtered.size() == 3+skips*3) break;
+        }
       }
       for (int i = 0; i < skips*3 && filtered.size(); i++)
-	filtered.erase(filtered.begin());
+        filtered.erase(filtered.begin());
       answers = move(filtered);
     }
 
@@ -254,7 +235,7 @@ void run(int only_sid = -1, int arg = -1) {
       rec_answers.push_back(sim.rec(s.test_in, cand.imgs.back()));
       double score = cand.score;
       if (add_flips) {
-	score /= 2-1e-5;
+	      score /= 2-1e-5;
       }
       answer_scores.push_back(score);
     }
@@ -262,23 +243,21 @@ void run(int only_sid = -1, int arg = -1) {
     int s3 = 0;
     if (!eval) s3 = scoreAnswers(rec_answers, s.test_in, s.test_out);
 
+    // add info to visualizer
     if (!eval) {//!eval && s1 && !s2) {
       {
-	visu.next(to_string(si) + " - test");
-	for (auto&[in,out] : train) visu.add(in,out);
-	visu.next(to_string(si) + " - test");
-	visu.add(test_in,test_out);
-	visu.next(to_string(si) + " - cands");
-	for (int i = 0; i < min((int)answers.size(), 5); i++) {
-	  visu.add(test_in, answers[i].imgs.back());
-	}
+        visu.next(to_string(si) + " - test");
+        for (auto&[in,out] : train) visu.add(in,out);
+        visu.next(to_string(si) + " - test");
+        visu.add(test_in,test_out);
+        visu.next(to_string(si) + " - cands");
+        for (int i = 0; i < min((int)answers.size(), 5); i++) {
+          visu.add(test_in, answers[i].imgs.back());
+        }
       }
     }
 
-    /*if (!eval && (s2 || s3) && !s1) {
-      cout << si << endl;
-      }*/
-
+    // add info about success
     if (!eval) {
       if (s3) verdict[si] = 3;
       else if (s2) verdict[si] = 2;
@@ -290,15 +269,9 @@ void run(int only_sid = -1, int arg = -1) {
     }
     {
       string fn = "output/answer_"+to_string(only_sid)+"_"+to_string(arg)+".csv";
-      //Writer writer(fn);
-      //writer(s, rec_answers);
       writeAnswersWithScores(s, fn, rec_answers, answer_scores);
     }
   }
-
-
-  //auto now = []() {return chrono::steady_clock::now().time_since_epoch().count()/1e9;};
-  //for (double start = now(); now() < start+10;);
 
   if (!eval && only_sid == -1) {
     for (int si = 0; si < sample.size(); si++) {

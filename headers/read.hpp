@@ -1,3 +1,4 @@
+#include <map>
 
 struct Sample {
   vector<pair<Image,Image>> train, test;

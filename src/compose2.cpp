@@ -12,6 +12,8 @@ using namespace std;
 
 #include "timer.hpp"
 
+#include <map>
+
 /*
 struct Candidate {
   vector<Image> imgs;

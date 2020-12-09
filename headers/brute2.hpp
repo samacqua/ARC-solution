@@ -1,6 +1,3 @@
-//#include <ext/pb_ds/assoc_container.hpp>
-//using namespace __gnu_pbds;
-
 double now();
 
 struct State {
@@ -18,17 +15,11 @@ struct State {
   }
 };
 
-
 #include "efficient.hpp"
-
-
 
 struct Node {
   State state;
-  //vImage vimg;
-  //bool isvec;
   vector<pair<int,int>> child;
-  //int depth;
   int par, pfi;
   bool freed, ispiece;
   Node() {
@@ -59,14 +50,11 @@ struct Functions {
 };
 
 
-
 struct DAG {
   Functions funcs;
-  //vector<Node> node;
   TinyNodeBank tiny_node;
   int givens;
   point target_size;
-  //gp_hash_table<ull, int> hashi;
   TinyHashMap hashi;
   vector<int> binary;
   int add(const State&nxt, bool force = false);

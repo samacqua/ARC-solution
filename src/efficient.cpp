@@ -6,7 +6,7 @@ using namespace std;
 
 // =========
 // efficient.cpp
-// 
+// manage search tree
 // =========
 
 pair<int,bool> TinyHashMap::insert(ull key, int value) {
@@ -121,12 +121,6 @@ void TinyChildren::legacy(vector<pair<int,int>>&ret) {
   }
 }
 
-
-
-
-
-
-
 TinyImage::TinyImage(Image_ img, TinyBank&bank) {
   for (int c : {img.x, img.y, img.w, img.h}) {
     assert(c >= -128 && c < 128);
@@ -178,11 +172,7 @@ TinyImage::TinyImage(Image_ img, TinyBank&bank) {
 	pathlen[child] = pathlen[p]+1;
       }
     }
-    //cout << p << ": " << (int)tree[p][0] << ' ' << (int)tree[p][1] << endl;
   }
-  /*for (int d = 0; d < 10; d++) {
-    cout << d << ": " << bitset<4>(code[d]) << ' ' << codelen[d] << endl;
-    }*/
 
   assert((bank.curi+align-1)/align < 1ll<<32);
   memi = (bank.curi+align-1)/align;
@@ -192,18 +182,9 @@ TinyImage::TinyImage(Image_ img, TinyBank&bank) {
   for (char c : img.mask) {
     bank.set(memstart+ size, code[c], codelen[c]);
     size += codelen[c];
-    //for (int i = 0; i < codelen[c]; i++)
-    //bank.set(memstart+ size++, code[c]>>i&1);
   }
-  /*for (int it = 0; it < 10; it++)
-    cout << (int)img.mask[it] << ' ';
-    cout << endl;
-    for (int it = 0; it < 20; it++)
-    cout << bank.get(memi+it);
-    cout << endl;*/
   bank.curi = memstart+size;
 }
-
 
 Image TinyImage::decompress(TinyBank&bank) {
   Image ret;
@@ -220,7 +201,6 @@ Image TinyImage::decompress(TinyBank&bank) {
     } else
       treep += child-9;
   }
-  //cout << maski << ' ' << ret.w*ret.h << endl;
   assert(maski == ret.w*ret.h);
   assert(treep == 0);
   return ret;

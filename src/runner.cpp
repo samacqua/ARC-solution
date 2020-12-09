@@ -204,7 +204,7 @@ void run(int only_sid = -1, int arg = -1) {
     vector<Candidate> cands;
     {
       double start_time = now();
-      cands = composePieces2(pieces, train, out_sizes);
+      cands = composePieces(pieces, train, out_sizes);
       if (print_times) cout << "composePieces time: " << now()-start_time << endl;
     }
     addDeduceOuterProduct(pieces, train, cands);

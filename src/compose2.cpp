@@ -304,7 +304,7 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
   return rets;
 }
 
-vector<Candidate> composePieces2(Pieces&pieces, vector<pair<Image, Image>> train, vector<point> out_sizes) {
+vector<Candidate> composePieces(Pieces&pieces, vector<pair<Image, Image>> train, vector<point> out_sizes) {
   vector<Candidate> cands;
 
   vector<Image> target;

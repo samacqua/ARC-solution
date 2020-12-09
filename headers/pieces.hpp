@@ -1,4 +1,3 @@
-
 struct Piece {
   int memi, depth;
 };

@@ -77,7 +77,7 @@ struct TinyBank {
 
     mem[i] |= v << j;
     if (j+len > 32)
-      mem[i+1] |= v >> 32-j;
+      mem[i+1] |= v >> (32-j);
   }
   inline int get(ll bi) {
     return mem[bi>>5]>>(bi&31)&1;

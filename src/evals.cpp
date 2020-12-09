@@ -9,7 +9,10 @@ using namespace std;
 #include "spec.hpp"
 #include "image_functions2.hpp"
 
-
+// =========
+// evals.cpp
+// evaluate hand-solved evaluation task
+// =========
 
 int rcDiff(Image_ img) {
   vector<int> row(img.h,1), col(img.w,1);
@@ -58,10 +61,6 @@ VECIFY(hull);
 vImage count(vImage_ vi, int a, int b) {
   FOREACH(count(vi[i],a,b));
 }
-
-
-
-
 
 Image solveEval(Image in, vector<pair<Image,Image>> train, int taski) {
   //Skipped  23,40,53,58,90

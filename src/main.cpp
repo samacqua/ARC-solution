@@ -4,6 +4,11 @@
 
 #include <unistd.h>
 
+// =========
+// main.cpp
+// file called by executable
+// =========
+
 int main(int argc, char**argv) {
   //rankFeatures();
   //evalNormalizeRigid();

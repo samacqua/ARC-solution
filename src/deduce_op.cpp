@@ -11,6 +11,11 @@ using namespace std;
 
 #include "deduce_op.hpp"
 
+// =========
+// deduce_op.cpp
+// 
+// =========
+
 pair<Image,Image> iOuterProductSI(Image_ img, int w, int h) {
   if (img.w*img.h <= 0 || img.w%w || img.h%h) return {badImg,badImg};
   Image big = core::full({img.w/w,img.h/h},-1);

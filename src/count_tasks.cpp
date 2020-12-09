@@ -8,6 +8,11 @@ using namespace std;
 #include "visu.hpp"
 #include "read.hpp"
 
+// =========
+// count_tasks.cpp
+// count the number of tests
+// =========
+
 int main() {
   vector<Sample> sample = readAll("test", -1);
   cout << sample.size() << endl;

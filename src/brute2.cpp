@@ -15,6 +15,11 @@ using namespace std;
 
 #include "timer.hpp"
 
+// =========
+// brute2.cpp
+// 
+// =========
+
 extern int MAXDEPTH, print_nodes;
 
 //double build_f_time = 0, apply_f_time = 0;

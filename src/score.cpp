@@ -8,12 +8,19 @@ using namespace std;
 #include "pieces.hpp"
 #include "compose2.hpp"
 
+// =========
+// score.cpp
+// determine if submission/program is correct
+// =========
+
+// return 1 if 1 of generated candidate grids is correct
 int scoreCands(const vector<Candidate>&cands, Image_ test_in, Image_ test_out) {
   for (const Candidate&cand : cands)
     if (cand.imgs.back() == test_out) return 1;
   return 0;
 }
 
+// return 1 if 1 of submitted grids is correct
 int scoreAnswers(vImage_ answers, Image_ test_in, Image_ test_out) {
   assert(answers.size() <= 3);
   for (Image_ answer : answers)

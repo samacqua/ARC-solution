@@ -14,6 +14,11 @@ using namespace std;
 #include "pieces.hpp"
 #include "timer.hpp"
 
+// =========
+// pieces.cpp
+// Make "pieces" (I still don't know what a piece is)
+// =========
+
 extern int print_nodes;
 
 /**

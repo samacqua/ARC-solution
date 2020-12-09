@@ -3,6 +3,11 @@
 using std::string;
 #include "load.hpp"
 
+// =========
+// load.cpp
+// help with loading files
+// =========
+
 const int loading_len = 40;
 
 void Loader::operator()() {

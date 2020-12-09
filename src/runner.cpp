@@ -24,6 +24,11 @@ using namespace std;
 
 #include <thread>
 
+// =========
+// runner.cpp
+// puts together all logic to search in parallel
+// =========
+
 string green(string s) {
   return ("\033[1;32m"+s+"\033[0m");
 }

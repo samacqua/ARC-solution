@@ -7,39 +7,43 @@ using namespace std;
 #include "read.hpp"
 #include "normalize.hpp"
 
+// =========
+// image_functions2.cpp
+// Functions that are searched over to generate the program (higher abstraction than image_functions.cpp)
+// =========
 
+// 
 vImage splitAll(Image_ img) {
   vector<Image> ret;
   Image done = core::empty(img.p,img.size);
   for (int i = 0; i < img.h; i++) {
     for (int j = 0; j < img.w; j++) {
       if (!done(i,j)) {
-	Image toadd = core::empty(img.p,img.size);
-	function<void(int,int,int)> dfs = [&](int r, int c, int col) {
-	  if (r < 0 || r >= img.h || c < 0 || c >= img.w || img(r,c) != col || done(r,c)) return;
-	  toadd(r,c) = img(r,c)+1;
-	  done(r,c) = 1;
-	  for (int d = 0; d < 4; d++)
-	    dfs(r+(d==0)-(d==1),c+(d==2)-(d==3),col);
-	};
-	dfs(i,j,img(i,j));
-	toadd = compress(toadd);
-	for (int i = 0; i < toadd.h; i++) {
-	  for (int j = 0; j < toadd.w; j++) {
-	    toadd(i,j) = max(0, toadd(i,j)-1);
-	  }
-	}
-	//Image i = interior(toadd);
-	//if (!core::count(compose(img,i,2)))
-	if (core::count(toadd))
-	  ret.push_back(toadd);
+        Image toadd = core::empty(img.p,img.size);
+        function<void(int,int,int)> dfs = [&](int r, int c, int col) {
+          if (r < 0 || r >= img.h || c < 0 || c >= img.w || img(r,c) != col || done(r,c)) return;
+          toadd(r,c) = img(r,c)+1;
+          done(r,c) = 1;
+          for (int d = 0; d < 4; d++)
+            dfs(r+(d==0)-(d==1),c+(d==2)-(d==3),col);
+        };
+        dfs(i,j,img(i,j));
+        toadd = compress(toadd);
+        for (int i = 0; i < toadd.h; i++) {
+          for (int j = 0; j < toadd.w; j++) {
+            toadd(i,j) = max(0, toadd(i,j)-1);
+          }
+        }
+
+        if (core::count(toadd))
+          ret.push_back(toadd);
       }
     }
   }
   return ret;
 }
 
-
+// 
 Image eraseCol(Image img, int col) {
   for (int i = 0; i < img.h; i++)
     for (int j = 0; j < img.w; j++)
@@ -54,55 +58,56 @@ vImage insideMarked(Image_ in) {
   for (int i = 0; i+1 < in.h; i++) {
     for (int j = 0; j+1 < in.w; j++) {
       for (int h = 1; i+h+1 < in.h; h++) {
-	for (int w = 1; j+w+1 < in.w; w++) {
-	  char col = in(i,j);
-	  if (!col) continue;
-	  int ok = 1;
-	  for (int k = 0; k < 4; k++) {
-	    int x = j+k%2*w, y = i+k/2*h;
-	    for (int d = 0; d < 4; d++) {
-	      if ((d != 3-k) == (in(y+d/2,x+d%2) != col)) {
-		ok = 0;
-		goto fail;
-	      }
-	    }
-	  }
-	fail:
-	  if (ok) {
-	    Image inside = invert(core::full(point{j+1,i+1}, point{w,h}));
-	    ret.push_back(compose(inside,in,3));
-	  }
-	}
+        for (int w = 1; j+w+1 < in.w; w++) {
+          char col = in(i,j);
+          if (!col) continue;
+          int ok = 1;
+          for (int k = 0; k < 4; k++) {
+            int x = j+k%2*w, y = i+k/2*h;
+            for (int d = 0; d < 4; d++) {
+              if ((d != 3-k) == (in(y+d/2,x+d%2) != col)) {
+                ok = 0;
+                goto fail;
+              }
+            }
+          }
+        fail:
+          if (ok) {
+            Image inside = invert(core::full(point{j+1,i+1}, point{w,h}));
+            ret.push_back(compose(inside,in,3));
+          }
+        }
       }
     }
   }
   return ret;
 }
 
+// 
 Image makeBorder(Image_ img, int bcol = 1) {
   Image ret = hull0(img);
   for (int i = 0; i < ret.h; i++) {
     for (int j = 0; j < ret.w; j++) {
       if (img(i,j) == 0) {
-	int ok = 0;
-	for (int ni : {i-1,i,i+1}) {
-	  for (int nj : {j-1,j,j+1}) {
-	    if (img.safe(ni,nj)) {
-	      ok = 1;
-	      break;
-	    }
-	  }
-	}
-	if (ok) {
-	  ret(i,j) = bcol;
-	}
+        int ok = 0;
+        for (int ni : {i-1,i,i+1}) {
+          for (int nj : {j-1,j,j+1}) {
+            if (img.safe(ni,nj)) {
+              ok = 1;
+              break;
+            }
+          }
+        }
+        if (ok) {
+          ret(i,j) = bcol;
+        }
       }
     }
   }
   return ret;
 }
 
-
+// 
 Image makeBorder2(Image_ img, int usemaj = 1) {
   int bcol = 1;
   if (usemaj) bcol = core::majorityCol(img);
@@ -116,6 +121,7 @@ Image makeBorder2(Image_ img, int usemaj = 1) {
   return ret;
 }
 
+// 
 Image makeBorder2(Image_ img, Image_ bord) {
   int bcol = core::majorityCol(bord);
   point resize = img.size+bord.size+bord.size;
@@ -126,7 +132,6 @@ Image makeBorder2(Image_ img, Image_ bord) {
       ret(i+bord.h,j+bord.w) = img(i,j);
   return ret;
 }
-
 
 //Delete black rows / cols
 Image compress2(Image_ img) {
@@ -143,7 +148,6 @@ Image compress2(Image_ img) {
       ret(i,j) = img(rows[i],cols[j]);
   return ret;
 }
-
 
 //Group single color rectangles
 Image compress3(Image_ img) {
@@ -166,9 +170,7 @@ Image compress3(Image_ img) {
   return ret;
 }
 
-
-//TODO: return badImg if fail
-
+// 
 Image greedyFill(Image& ret, vector<pair<int,vector<int>>>&piece, Spec&done, int bw, int bh, int&donew) {
   sort(piece.rbegin(), piece.rend());
 
@@ -199,24 +201,24 @@ Image greedyFill(Image& ret, vector<pair<int,vector<int>>>&piece, Spec&done, int
     for (auto [cnt,mask] : piece) {
       int ok = 1;
       for (int y = 0; y < bh; y++)
-	for (int x = 0; x < bw; x++)
-	  if (done(i+y,j+x) && ret(i+y,j+x) != mask[y*bw+x])
-	    ok = 0;
+        for (int x = 0; x < bw; x++)
+          if (done(i+y,j+x) && ret(i+y,j+x) != mask[y*bw+x])
+            ok = 0;
       if (ok) {
-	for (int y = 0; y < bh; y++) {
-	  for (int x = 0; x < bw; x++) {
-	    if (!done(i+y,j+x)) {
-	      done(i+y,j+x) = donew;
-	      if (donew > 1) donew--;
-	      ret(i+y,j+x) = mask[y*bw+x];
-	    }
-	  }
-	}
-	for (int y = max(i-bh+1,0); y < min(i+bh, dh); y++)
-	  for (int x = max(j-bw+1,0); x < min(j+bw, dw); x++)
-	    recalc(y,x);
-	found = 1;
-	break;
+        for (int y = 0; y < bh; y++) {
+          for (int x = 0; x < bw; x++) {
+            if (!done(i+y,j+x)) {
+              done(i+y,j+x) = donew;
+              if (donew > 1) donew--;
+              ret(i+y,j+x) = mask[y*bw+x];
+            }
+          }
+        }
+        for (int y = max(i-bh+1,0); y < min(i+bh, dh); y++)
+          for (int x = max(j-bw+1,0); x < min(j+bw, dw); x++)
+            recalc(y,x);
+        found = 1;
+        break;
       }
     }
     if (!found)
@@ -225,9 +227,7 @@ Image greedyFill(Image& ret, vector<pair<int,vector<int>>>&piece, Spec&done, int
   return ret;
 }
 
-
-
-
+// 
 Image greedyFillBlack(Image_ img, int N = 3) {
   Image ret = core::empty(img.p, img.size);
   Spec done;
@@ -238,8 +238,8 @@ Image greedyFillBlack(Image_ img, int N = 3) {
   for (int i = 0; i < ret.h; i++) {
     for (int j = 0; j < ret.w; j++) {
       if (img(i,j)) {
-	ret(i,j) = img(i,j);
-	done(i,j) = donew;
+        ret(i,j) = img(i,j);
+        done(i,j) = donew;
       }
     }
   }
@@ -251,17 +251,17 @@ Image greedyFillBlack(Image_ img, int N = 3) {
     Image rot = rigid(img,r);
     for (int i = 0; i+bh <= rot.h; i++) {
       for (int j = 0; j+bw <= rot.w; j++) {
-	mask.reserve(bw*bh);
-	mask.resize(0);
-	int ok = 1;
-	for (int y = 0; y < bh; y++)
-	  for (int x = 0; x < bw; x++) {
-	    char c = rot(i+y,j+x);
-	    mask.push_back(c);
-	    if (!c) ok = 0;
-	  }
-	if (ok)
-	  ++piece_cnt[mask];
+        mask.reserve(bw*bh);
+        mask.resize(0);
+        int ok = 1;
+        for (int y = 0; y < bh; y++)
+          for (int x = 0; x < bw; x++) {
+            char c = rot(i+y,j+x);
+            mask.push_back(c);
+            if (!c) ok = 0;
+          }
+        if (ok)
+          ++piece_cnt[mask];
       }
     }
   }
@@ -272,11 +272,13 @@ Image greedyFillBlack(Image_ img, int N = 3) {
   return greedyFill(ret, piece, done, bw, bh, donew);
 }
 
+// 
 Image greedyFillBlack2(Image_ img, int N = 3) {
   Image filled = greedyFillBlack(img, N);
   return compose(filled, img, 4);
 }
 
+// 
 Image extend2(Image_ img, Image_ room) {
   Image ret = core::empty(room.p, room.size);
   Spec done;
@@ -289,8 +291,8 @@ Image extend2(Image_ img, Image_ room) {
     for (int j = 0; j < ret.w; j++) {
       int x = j+d.x, y = i+d.y;
       if (x >= 0 && y >= 0 && x < img.w && y < img.h) {
-	ret(i,j) = img(y,x);
-	done(i,j) = donew;
+        ret(i,j) = img(y,x);
+        done(i,j) = donew;
       }
     }
   }
@@ -302,12 +304,12 @@ Image extend2(Image_ img, Image_ room) {
     Image rot = rigid(img,r);
     for (int i = 0; i+bh <= rot.h; i++) {
       for (int j = 0; j+bw <= rot.w; j++) {
-	mask.reserve(bw*bh);
-	mask.resize(0);
-	for (int y = 0; y < bh; y++)
-	  for (int x = 0; x < bw; x++)
-	    mask.push_back(rot(i+y,j+x));
-	++piece_cnt[mask];
+        mask.reserve(bw*bh);
+        mask.resize(0);
+        for (int y = 0; y < bh; y++)
+          for (int x = 0; x < bw; x++)
+            mask.push_back(rot(i+y,j+x));
+        ++piece_cnt[mask];
       }
     }
   }
@@ -318,8 +320,7 @@ Image extend2(Image_ img, Image_ room) {
   return greedyFill(ret, piece, done, bw, bh, donew);
 }
 
-
-
+// 
 Image connect(Image_ img, int id) {
   assert(id >= 0 && id < 3);
   Image ret = core::empty(img.p, img.size);
@@ -329,14 +330,14 @@ Image connect(Image_ img, int id) {
     for (int i = 0; i < img.h; i++) {
       int last = -1, lastc = -1;
       for (int j = 0; j < img.w; j++) {
-	if (img(i,j)) {
-	  if (img(i,j) == lastc) {
-	    for (int k = last+1; k < j; k++)
-	      ret(i,k) = lastc;
-	  }
-	  lastc = img(i,j);
-	  last = j;
-	}
+        if (img(i,j)) {
+          if (img(i,j) == lastc) {
+            for (int k = last+1; k < j; k++)
+              ret(i,k) = lastc;
+          }
+          lastc = img(i,j);
+          last = j;
+        }
       }
     }
   }
@@ -346,14 +347,14 @@ Image connect(Image_ img, int id) {
     for (int j = 0; j < img.w; j++) {
       int last = -1, lastc = -1;
       for (int i = 0; i < img.h; i++) {
-	if (img(i,j)) {
-	  if (img(i,j) == lastc) {
-	    for (int k = last+1; k < i; k++)
-	      ret(k,j) = lastc;
-	  }
-	  lastc = img(i,j);
-	  last = i;
-	}
+        if (img(i,j)) {
+          if (img(i,j) == lastc) {
+            for (int k = last+1; k < i; k++)
+              ret(k,j) = lastc;
+          }
+          lastc = img(i,j);
+          last = i;
+        }
       }
     }
   }
@@ -361,6 +362,7 @@ Image connect(Image_ img, int id) {
   return ret;
 }
 
+// 
 Image replaceTemplate(Image_ in, Image_ need_, Image_ marked_, int overlapping = 0, int rigids = 0) {
   if (marked_.size != need_.size) return badImg;
   if (need_.w*need_.h <= 0) return in;
@@ -379,36 +381,35 @@ Image replaceTemplate(Image_ in, Image_ need_, Image_ marked_, int overlapping =
 
     for (int i = 0; i+need.h <= ret.h; i++) {
       for (int j = 0; j+need.w <= ret.w; j++) {
-	int ok = 1;
-	for (int y = 0; y < need.h; y++)
-	  for (int x = 0; x < need.w; x++)
-	    if ((overlapping ? in : ret)(i+y,j+x) != need(y,x)) ok = 0;
+        int ok = 1;
+        for (int y = 0; y < need.h; y++)
+          for (int x = 0; x < need.w; x++)
+            if ((overlapping ? in : ret)(i+y,j+x) != need(y,x)) ok = 0;
 
-	if (overlapping == 2) {
-	  for (int y = -1; y <= need.h; y++) {
-	    for (int x = -1; x <= need.w; x++) {
-	      if (x >= 0 && y >= 0 && x < need.w && y < need.h) continue;
+        if (overlapping == 2) {
+          for (int y = -1; y <= need.h; y++) {
+            for (int x = -1; x <= need.w; x++) {
+              if (x >= 0 && y >= 0 && x < need.w && y < need.h) continue;
 
-	      char nn = need(clamp(y,0,need.h-1),
-			     clamp(x,0,need.w-1));
-	      if (nn && nn == in.safe(i+y,j+x)) ok = 0;
-	    }
-	  }
-	}
+              char nn = need(clamp(y,0,need.h-1),
+                clamp(x,0,need.w-1));
+              if (nn && nn == in.safe(i+y,j+x)) ok = 0;
+            }
+          }
+        }
 
-	if (ok) {
-	  for (int y = 0; y < need.h; y++)
-	    for (int x = 0; x < need.w; x++)
-	      ret(i+y,j+x) = marked(y,x);
-	}
+        if (ok) {
+          for (int y = 0; y < need.h; y++)
+            for (int x = 0; x < need.w; x++)
+              ret(i+y,j+x) = marked(y,x);
+        }
       }
     }
   }
   return ret;
 }
 
-
-
+// 
 Image swapTemplate(Image_ in, Image_ a, Image_ b, int rigids = 0) {
   if (a.size != b.size) return badImg;
   if (a.w*a.h <= 0) return in;
@@ -426,29 +427,28 @@ Image swapTemplate(Image_ in, Image_ a, Image_ b, int rigids = 0) {
       Image_ to   = k ? br[r] : ar[r];
 
       for (int i = 0; i+need.h <= ret.h; i++) {
-	for (int j = 0; j+need.w <= ret.w; j++) {
+        for (int j = 0; j+need.w <= ret.w; j++) {
 
-	  int ok = 1;
-	  for (int y = 0; y < need.h; y++)
-	    for (int x = 0; x < need.w; x++)
-	      if (done(i+y,j+x) || ret(i+y,j+x) != need(y,x)) ok = 0;
-	  if (ok) {
-	    for (int y = 0; y < need.h; y++) {
-	      for (int x = 0; x < need.w; x++) {
-		ret(i+y,j+x) = to(y,x);
-		done(i+y,j+x) = 1;
-	      }
-	    }
-	  }
-	}
-
+          int ok = 1;
+          for (int y = 0; y < need.h; y++)
+            for (int x = 0; x < need.w; x++)
+              if (done(i+y,j+x) || ret(i+y,j+x) != need(y,x)) ok = 0;
+          if (ok) {
+            for (int y = 0; y < need.h; y++) {
+              for (int x = 0; x < need.w; x++) {
+          ret(i+y,j+x) = to(y,x);
+          done(i+y,j+x) = 1;
+              }
+            }
+          }
+        }
       }
     }
   }
   return ret;
 }
 
-
+// 
 Image spreadCols(Image img, int skipmaj = 0) {
   int skipcol = -1;
   if (skipmaj)
@@ -459,9 +459,9 @@ Image spreadCols(Image img, int skipmaj = 0) {
   for (int i = 0; i < img.h; i++) {
     for (int j = 0; j < img.w; j++) {
       if (img(i,j)) {
-	if (img(i,j) != skipcol)
-	  q.emplace(j,i,img(i,j));
-	done(i,j) = 1;
+        if (img(i,j) != skipcol)
+          q.emplace(j,i,img(i,j));
+        done(i,j) = 1;
       }
     }
   }
@@ -472,16 +472,16 @@ Image spreadCols(Image img, int skipmaj = 0) {
       int ni = i+(d==0)-(d==1);
       int nj = j+(d==2)-(d==3);
       if (ni >= 0 && nj >= 0 && ni < img.h && nj < img.w && !done(ni,nj)) {
-	img(ni,nj) = c;
-	done(ni,nj) = 1;
-	q.emplace(nj,ni,c);
+        img(ni,nj) = c;
+        done(ni,nj) = 1;
+        q.emplace(nj,ni,c);
       }
     }
   }
   return img;
 }
 
-
+// 
 vImage splitColumns(Image_ img) {
   if (img.w*img.h <= 0) return {};
   vector<Image> ret(img.w);
@@ -494,6 +494,8 @@ vImage splitColumns(Image_ img) {
   }
   return ret;
 }
+
+// 
 vImage splitRows(Image_ img) {
   if (img.w*img.h <= 0) return {};
   vector<Image> ret(img.h);
@@ -507,7 +509,7 @@ vImage splitRows(Image_ img) {
   return ret;
 }
 
-
+// 
 Image half(Image_ img, int id) {
   assert(id >= 0 && id < 4);
   if (id == 0) {
@@ -522,7 +524,7 @@ Image half(Image_ img, int id) {
   return badImg;
 }
 
-
+// 
 Image smear(Image_ img, int id) {
   assert(id >= 0 && id < 15);
   const pair<int,int> R = {1,0}, L = {-1,0}, D = {0,1}, U = {0,-1};
@@ -537,28 +539,27 @@ Image smear(Image_ img, int id) {
   const int w = img.w;
   Image ret = img;
 
-
   for (auto [dx,dy] : d[id]) {
     int di = dy*w+dx;
 
     for (int i = 0; i < ret.h; i++) {
       int step = i == 0 || i == ret.h-1 ? 1 : max(ret.w-1,1);
       for (int j = 0; j < ret.w; j += step) {
-	if (i-dy < 0 || j-dx < 0 || i-dy >= img.h || j-dx >= img.w) {
-	  int steps = MAXSIDE;
-	  if (dx ==-1) steps = min(steps, j+1);
-	  if (dx == 1) steps = min(steps, img.w-j);
-	  if (dy ==-1) steps = min(steps, i+1);
-	  if (dy == 1) steps = min(steps, img.h-i);
+        if (i-dy < 0 || j-dx < 0 || i-dy >= img.h || j-dx >= img.w) {
+          int steps = MAXSIDE;
+          if (dx ==-1) steps = min(steps, j+1);
+          if (dx == 1) steps = min(steps, img.w-j);
+          if (dy ==-1) steps = min(steps, i+1);
+          if (dy == 1) steps = min(steps, img.h-i);
 
-	  int ind = i*w+j;
-	  int end_ind = ind+steps*di;
-	  int c = 0;
-	  for (; ind != end_ind; ind += di) {
-	    if (img.mask[ind]) c = img.mask[ind];
-	    if (c) ret.mask[ind] = c;
-	  }
-	}
+          int ind = i*w+j;
+          int end_ind = ind+steps*di;
+          int c = 0;
+          for (; ind != end_ind; ind += di) {
+            if (img.mask[ind]) c = img.mask[ind];
+            if (c) ret.mask[ind] = c;
+          }
+        }
       }
     }
   }
@@ -566,7 +567,7 @@ Image smear(Image_ img, int id) {
   return ret;
 }
 
-
+// 
 Image mirror2(Image_ a, Image_ line) {
   Image ret;
   if (line.w > line.h) {
@@ -581,6 +582,7 @@ Image mirror2(Image_ a, Image_ line) {
   return ret;
 }
 
+// 
 vImage gravity(Image_ in, int d) {
   vImage pieces = splitAll(in);
   Image room = hull0(in);
@@ -596,16 +598,16 @@ vImage gravity(Image_ in, int d) {
       p.x += dx;
       p.y += dy;
       for (int i = 0; i < p.h; i++) {
-	for (int j = 0; j < p.w; j++) {
-	  if (p(i,j) == 0) continue;
-	  int x = j+p.x-out.x;
-	  int y = i+p.y-out.y;
-	  if (x < 0 || y < 0 || x >= out.w || y >= out.h || out(y,x)) {
-	    p.x -= dx;
-	    p.y -= dy;
-	    goto done;
-	  }
-	}
+        for (int j = 0; j < p.w; j++) {
+          if (p(i,j) == 0) continue;
+          int x = j+p.x-out.x;
+          int y = i+p.y-out.y;
+          if (x < 0 || y < 0 || x >= out.w || y >= out.h || out(y,x)) {
+            p.x -= dx;
+            p.y -= dy;
+            goto done;
+          }
+        }
       }
     }
   done:
@@ -615,8 +617,7 @@ vImage gravity(Image_ in, int d) {
   return ret;
 }
 
-
-
+// 
 Image myStack(vImage_ lens, int id) {
   int n = lens.size();
   if (!n) return badImg;
@@ -632,6 +633,7 @@ Image myStack(vImage_ lens, int id) {
   return out;
 }
 
+// 
 Image stackLine(vImage_ shapes) {
   int n = shapes.size();
   if (!n) return badImg;
@@ -663,7 +665,7 @@ Image stackLine(vImage_ shapes) {
   return out;
 }
 
-
+// 
 Image composeGrowingSlow(vImage_ imgs) {
   int n = imgs.size();
   if (!n) return badImg;
@@ -680,7 +682,7 @@ Image composeGrowingSlow(vImage_ imgs) {
   return ret;
 }
 
-
+// 
 Image composeGrowing(vImage_ imgs) {
   int n = imgs.size();
   if (!n) return badImg;
@@ -719,7 +721,7 @@ Image composeGrowing(vImage_ imgs) {
   return ret;
 }
 
-
+// 
 Image pickUnique(vImage_ imgs, int id) {
   assert(id == 0);
 
@@ -739,10 +741,10 @@ Image pickUnique(vImage_ imgs, int id) {
   for (int i = 0; i < n; i++) {
     for (int c = 0; c < 10; c++) {
       if (mask[i]>>c&1) {
-	if (cnt[c] == 1) {
-	  if (reti == -1) reti = i;
-	  else return badImg;
-	}
+        if (cnt[c] == 1) {
+          if (reti == -1) reti = i;
+          else return badImg;
+        }
       }
     }
   }

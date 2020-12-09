@@ -1,26 +1,33 @@
 #include "precompiled_stl.hpp"
-/*#include <vector>
-#include <cassert>
-#include <queue>
-#include <tuple>
-#include <functional>*/
 using namespace std;
 
 #include "utils.hpp"
 #include "core_functions.hpp"
 #include "image_functions.hpp"
 
+// =========
+// image_functions.cpp
+// Functions that are searched over to generate the program
+// =========
+
+// 
 Image Col(int id) {
   assert(id >= 0 && id < 10);
   return core::full({0,0}, {1,1}, id);
 }
+
+// 
 Image Pos(int dx, int dy) {
   return core::full({dx,dy},{1,1});
 }
+
+// 
 Image Square(int id) {
   assert(id >= 1);
   return core::full({0,0}, {id,id});
 }
+
+// 
 Image Line(int orient, int id) {
   assert(id >= 1);
   int w = id, h = 1;
@@ -28,42 +35,55 @@ Image Line(int orient, int id) {
   return core::full({0,0}, {w,h});
 }
 
+// 
 Image getPos(Image_ img) {
   return core::full(img.p, {1,1}, core::majorityCol(img));
 }
+
+// 
 Image getSize(Image_ img) {
   return core::full({0,0}, img.size, core::majorityCol(img));
 }
+
+// 
 Image hull(Image_ img) {
   return core::full(img.p, img.size, core::majorityCol(img));
 }
+
+// 
 Image toOrigin(Image img) {
   img.p = {0,0};
   return img;
 }
 
+// 
 Image getW(Image_ img, int id) {
   return core::full({0,0}, {img.w,id ? img.w : 1}, core::majorityCol(img));
 }
+
+// 
 Image getH(Image_ img, int id) {
   return core::full({0,0}, {id ? img.h : 1, img.h}, core::majorityCol(img));
 }
 
+// 
 Image hull0(Image_ img) {
   return core::full(img.p, img.size, 0);
 }
+
+// 
 Image getSize0(Image_ img) {
   return core::full({0,0}, img.size, 0);
 }
 
-
-
+// 
 Image Move(Image img, Image_ p) {
   img.x += p.x;
   img.y += p.y;
   return img;
 }
 
+// 
 Image filterCol(Image_ img, Image_ palette) {
   Image ret = img;
   int palMask = core::colMask(palette);
@@ -74,14 +94,14 @@ Image filterCol(Image_ img, Image_ palette) {
   return ret;
 }
 
+// 
 Image filterCol(Image_ img, int id) {
   assert(id >= 0 && id < 10);
   if (id == 0) return invert(img);
   else return filterCol(img, Col(id));
 }
 
-
-
+// 
 Image broadcast(Image_ col, Image_ shape, int include0) { //include0 = 1
   if (col.w*col.h == 0 || shape.w*shape.h == 0) return badImg;
 
@@ -144,6 +164,7 @@ Image broadcast(Image_ col, Image_ shape, int include0) { //include0 = 1
   return ret;
 }
 
+// 
 Image colShape(Image_ col, Image_ shape) {
   if (shape.w*shape.h == 0 || col.w*col.h == 0) return badImg;
   Image ret = broadcast(col, getSize(shape));
@@ -153,6 +174,8 @@ Image colShape(Image_ col, Image_ shape) {
       if (!shape(i,j)) ret(i,j) = 0;
   return ret;
 }
+
+// 
 Image colShape(Image_ shape, int id) {
   assert(id >= 0 && id < 10);
   Image ret = shape;
@@ -161,8 +184,7 @@ Image colShape(Image_ shape, int id) {
   return ret;
 }
 
-
-
+// 
 Image compress(Image_ img, Image_ bg) { // bg = Col(0)
   int bgmask = core::colMask(bg);
 
@@ -194,8 +216,7 @@ Image compress(Image_ img, Image_ bg) { // bg = Col(0)
   return ret;
 }
 
-
-
+// 
 Image embedSlow(Image_ img, Image_ shape) {
   Image ret = core::empty(shape.p, shape.size);
   point d = shape.p-img.p;
@@ -205,6 +226,7 @@ Image embedSlow(Image_ img, Image_ shape) {
   return ret;
 }
 
+// 
 Image embed(Image_ img, Image_ shape) {
   Image ret = core::empty(shape.p, shape.size);
   point d = shape.p-img.p;
@@ -221,7 +243,7 @@ Image embed(Image_ img, Image_ shape) {
   return ret;
 }
 
-
+// 
 Image compose(Image_ a, Image_ b, const function<int(int,int)>&f, int overlap_only) {
   Image ret;
   if (overlap_only == 1) {
@@ -255,7 +277,7 @@ Image compose(Image_ a, Image_ b, const function<int(int,int)>&f, int overlap_on
   return ret;
 }
 
-
+// 
 Image compose(Image_ a, Image_ b, int id) { //id = 0
   if (id == 0) {
     return compose(a, b, [](int a, int b) {return b ? b : a;}, 0); //a then b, inside either
@@ -271,6 +293,7 @@ Image compose(Image_ a, Image_ b, int id) { //id = 0
   return badImg;
 }
 
+// 
 Image outerProductIS(Image_ a, Image_ b) {
   if (a.w*b.w > MAXSIDE || a.h*b.h > MAXSIDE || a.w*b.w*a.h*b.h > MAXAREA) return badImg;
   point rpos = {a.p.x*b.w+b.p.x,
@@ -283,6 +306,8 @@ Image outerProductIS(Image_ a, Image_ b) {
 	  ret(i*b.h+k, j*b.w+l) = a(i,j) * !!b(k,l);
   return ret;
 }
+
+// 
 Image outerProductSI(Image_ a, Image_ b) {
   if (a.w*b.w > MAXSIDE || a.h*b.h > MAXSIDE || a.w*b.w*a.h*b.h > MAXAREA) return badImg;
   point rpos = {a.p.x*b.w+b.p.x,
@@ -296,8 +321,7 @@ Image outerProductSI(Image_ a, Image_ b) {
   return ret;
 }
 
-
-
+// 
 Image Fill(Image_ a) {
   Image ret = core::full(a.p, a.size, core::majorityCol(a));
   vector<pair<int,int>> q;
@@ -322,10 +346,12 @@ Image Fill(Image_ a) {
   return ret;
 }
 
+// 
 Image interior(Image_ a) {
   return compose(Fill(a), a, [](int x, int y) {return y ? 0 : x;}, 0);
 }
 
+// 
 Image border(Image_ a) {
   Image ret = core::empty(a.p, a.size);
   vector<pair<int,int>> q;
@@ -369,7 +395,7 @@ Image border(Image_ a) {
   return ret;
 }
 
-
+// 
 Image alignx(Image_ a, Image_ b, int id) {
   assert(id >= 0 && id < 5);
   Image ret = a;
@@ -380,6 +406,8 @@ Image alignx(Image_ a, Image_ b, int id) {
   else if (id == 4) ret.x = b.x+b.w;
   return ret;
 }
+
+// 
 Image aligny(Image_ a, Image_ b, int id) {
   assert(id >= 0 && id < 5);
   Image ret = a;
@@ -390,6 +418,8 @@ Image aligny(Image_ a, Image_ b, int id) {
   else if (id == 4) ret.y = b.y+b.h;
   return ret;
 }
+
+// 
 Image align(Image_ a, Image_ b, int idx, int idy) {
   assert(idx >= 0 && idx < 6);
   assert(idy >= 0 && idy < 6);
@@ -408,8 +438,7 @@ Image align(Image_ a, Image_ b, int idx, int idy) {
   return ret;
 }
 
-
-
+// 
 Image align(Image_ a, Image_ b) {
   //Find most matching color and align a to b using it
   Image ret = a;
@@ -429,6 +458,7 @@ Image align(Image_ a, Image_ b) {
   return ret;
 }
 
+// 
 Image replaceCols(Image_ base, Image_ cols) {
   Image ret = base;
   Image done = core::empty(base.p,base.size);
@@ -436,25 +466,25 @@ Image replaceCols(Image_ base, Image_ cols) {
   for (int i = 0; i < base.h; i++) {
     for (int j = 0; j < base.w; j++) {
       if (!done(i,j) && base(i,j)) {
-	int acol = base(i,j);
-	int cnt[10] = {};
-	vector<pair<int,int>> path;
-	function<void(int,int)> dfs = [&](int r, int c) {
-	  if (r < 0 || r >= base.h || c < 0 || c >= base.w || base(r,c) != acol || done(r,c)) return;
-	  cnt[cols.safe(r+d.y,c+d.x)]++;
-	  path.emplace_back(r,c);
-	  done(r,c) = 1;
-	  for (int nr : {r-1,r,r+1})
-	    for (int nc : {c-1,c,c+1})
-	      dfs(nr,nc);
-	};
-	dfs(i,j);
-	pair<int,int> maj = {0,0};
-	for (int c = 1; c < 10; c++) {
-	  maj = max(maj, make_pair(cnt[c], -c));
-	}
-	for (auto [r,c] : path)
-	  ret(r,c) = -maj.second;
+        int acol = base(i,j);
+        int cnt[10] = {};
+        vector<pair<int,int>> path;
+        function<void(int,int)> dfs = [&](int r, int c) {
+          if (r < 0 || r >= base.h || c < 0 || c >= base.w || base(r,c) != acol || done(r,c)) return;
+          cnt[cols.safe(r+d.y,c+d.x)]++;
+          path.emplace_back(r,c);
+          done(r,c) = 1;
+          for (int nr : {r-1,r,r+1})
+            for (int nc : {c-1,c,c+1})
+              dfs(nr,nc);
+        };
+        dfs(i,j);
+        pair<int,int> maj = {0,0};
+        for (int c = 1; c < 10; c++) {
+          maj = max(maj, make_pair(cnt[c], -c));
+        }
+        for (auto [r,c] : path)
+          ret(r,c) = -maj.second;
       }
     }
   }
@@ -468,6 +498,7 @@ Image center(Image_ img) {
   return core::full(img.p+(img.size-size)/2, size);
 }
 
+// 
 Image transform(Image_ img, int A00, int A01, int A10, int A11) {
   if (img.w*img.h == 0) return img;
   Image c = center(img);
@@ -499,6 +530,7 @@ Image transform(Image_ img, int A00, int A01, int A10, int A11) {
   return ret;
 }
 
+// 
 int mirrorHeuristic(Image_ img) {
   //Meant to be used for mirroring, flip either x or y, depending on center of gravity
   int cnt = 0, sumx = 0, sumy = 0;
@@ -514,6 +546,7 @@ int mirrorHeuristic(Image_ img) {
   return abs(sumx*2-(img.w-1)*cnt) < abs(sumy*2-(img.h-1)*cnt);
 }
 
+// 
 Image rigid(Image_ img, int id) {
   if (id == 0) return img;
   else if (id == 1) return transform(img, 0, 1,-1, 0); //CCW
@@ -528,6 +561,7 @@ Image rigid(Image_ img, int id) {
   return badImg;
 }
 
+// 
 Image invert(Image img) {
   if (img.w*img.h == 0) return img;
   int mask = core::colMask(img);
@@ -541,13 +575,12 @@ Image invert(Image img) {
   return img;
 }
 
-
+// 
 Image interior2(Image_ a) {
   return compose(a, invert(border(a)), 2);
 }
 
-
-
+// 
 Image count(Image_ img, int id, int outType) {
   assert(id >= 0 && id < 7);
   assert(outType >= 0 && outType < 3);
@@ -571,7 +604,7 @@ Image count(Image_ img, int id, int outType) {
   return core::full(size, core::majorityCol(img));
 }
 
-
+// 
 Image myStack(Image_ a, Image b, int orient) {
   assert(orient >= 0 && orient <= 3);
   b.p = a.p;
@@ -591,7 +624,7 @@ Image myStack(Image_ a, Image b, int orient) {
   return compose(a,b);
 }
 
-
+// 
 Image wrap(Image_ line, Image_ area) {
   if (line.w*line.h == 0 || area.w*area.h == 0) return badImg;
   Image ans = core::empty(area.size);
@@ -611,6 +644,7 @@ Image wrap(Image_ line, Image_ area) {
   return ans;
 }
 
+// 
 Image smear(Image_ base, Image_ room, int id) {
   assert(id >= 0 && id < 7);
   const int arr[] = {1,2,4,8,3,12,15};
@@ -623,9 +657,9 @@ Image smear(Image_ base, Image_ room, int id) {
     for (int i = 0; i < ret.h; i++) {
       char c = 0;
       for (int j = 0; j < ret.w; j++) {
-	if (!room(i,j)) c = 0;
-	else if (base.safe(i+d.y,j+d.x)) c = base(i+d.y,j+d.x);
-	if (c) ret(i,j) = c;
+        if (!room(i,j)) c = 0;
+        else if (base.safe(i+d.y,j+d.x)) c = base(i+d.y,j+d.x);
+        if (c) ret(i,j) = c;
       }
     }
   }
@@ -634,9 +668,9 @@ Image smear(Image_ base, Image_ room, int id) {
     for (int i = 0; i < ret.h; i++) {
       char c = 0;
       for (int j = ret.w-1; j >= 0; j--) {
-	if (!room(i,j)) c = 0;
-	else if (base.safe(i+d.y,j+d.x)) c = base(i+d.y,j+d.x);
-	if (c) ret(i,j) = c;
+        if (!room(i,j)) c = 0;
+        else if (base.safe(i+d.y,j+d.x)) c = base(i+d.y,j+d.x);
+        if (c) ret(i,j) = c;
       }
     }
   }
@@ -645,9 +679,9 @@ Image smear(Image_ base, Image_ room, int id) {
     for (int j = 0; j < ret.w; j++) {
       char c = 0;
       for (int i = 0; i < ret.h; i++) {
-	if (!room(i,j)) c = 0;
-	else if (base.safe(i+d.y,j+d.x)) c = base(i+d.y,j+d.x);
-	if (c) ret(i,j) = c;
+        if (!room(i,j)) c = 0;
+        else if (base.safe(i+d.y,j+d.x)) c = base(i+d.y,j+d.x);
+        if (c) ret(i,j) = c;
       }
     }
   }
@@ -656,9 +690,9 @@ Image smear(Image_ base, Image_ room, int id) {
     for (int j = 0; j < ret.w; j++) {
       char c = 0;
       for (int i = ret.h-1; i >= 0; i--) {
-	if (!room(i,j)) c = 0;
-	else if (base.safe(i+d.y,j+d.x)) c = base(i+d.y,j+d.x);
-	if (c) ret(i,j) = c;
+        if (!room(i,j)) c = 0;
+        else if (base.safe(i+d.y,j+d.x)) c = base(i+d.y,j+d.x);
+        if (c) ret(i,j) = c;
       }
     }
   }
@@ -666,12 +700,7 @@ Image smear(Image_ base, Image_ room, int id) {
   return ret;
 }
 
-/*
-Image smear(Image_ base, int id) {
-  return smear(base, hull(base), id);
-}
-*/
-
+// 
 Image extend(Image_ img, Image_ room) {
   if (img.w*img.h == 0) return badImg;
   Image ret = room;
@@ -686,13 +715,7 @@ Image extend(Image_ img, Image_ room) {
   return ret;
 }
 
-
-
-
-
-
-
-
+// 
 Image pickMax(vImage_ v, const function<int(Image_)>& f) {
   if (v.empty()) return badImg;
   int ma = f(v[0]), maxi = 0;
@@ -706,6 +729,7 @@ Image pickMax(vImage_ v, const function<int(Image_)>& f) {
   return v[maxi];
 }
 
+// 
 int maxCriterion(Image_ img, int id) {
   assert(id >= 0 && id < 14);
   switch (id) {
@@ -735,11 +759,12 @@ int maxCriterion(Image_ img, int id) {
   return -1;
 }
 
-
+// 
 Image pickMax(vImage_ v, int id) {
   return pickMax(v, [id](Image_ img) {return maxCriterion(img,id);});
 }
 
+// 
 vImage cut(Image_ img, Image_ a) {
   vector<Image> ret;
   Image done = core::empty(img.p,img.size);
@@ -770,7 +795,7 @@ vImage cut(Image_ img, Image_ a) {
   return ret;
 }
 
-
+// 
 vImage splitCols(Image_ img, int include0) { //include0 = 0
   vector<Image> ret;
   int mask = core::colMask(img);
@@ -786,6 +811,7 @@ vImage splitCols(Image_ img, int include0) { //include0 = 0
   return ret;
 }
 
+// 
 Image compose(vImage_ imgs, int id) {
   if (imgs.empty()) return badImg;
   Image ret = imgs[0];
@@ -794,6 +820,7 @@ Image compose(vImage_ imgs, int id) {
   return ret;
 }
 
+// 
 void getRegular(vector<int>&col) {
   int colw = col.size();
 
@@ -820,6 +847,7 @@ void getRegular(vector<int>&col) {
   fill(col.begin(), col.end(), 0);
 }
 
+// 
 Image getRegular(Image_ img) {
   //Look for regular grid division in single color
   Image ret = img;
@@ -840,42 +868,52 @@ Image getRegular(Image_ img) {
   return ret;
 }
 
-
+// 
 Image cutPickMax(Image_ a, Image_ b, int id) {
   return pickMax(cut(a,b), id);
 }
+
+// 
 Image regularCutPickMax(Image_ a, int id) {
   Image b = getRegular(a);
   return pickMax(cut(a,b), id);
 }
+
+// 
 Image splitPickMax(Image_ a, int id, int include0) { //include0 = 0
   return pickMax(splitCols(a, include0), id);
 }
 
+// 
 Image cutCompose(Image_ a, Image_ b, int id) {
   auto v = cut(a,b);
   for (Image& img : v) img = toOrigin(img);
   return compose(v, id);
 }
+
+// 
 Image regularCutCompose(Image_ a, int id) {
   Image b = getRegular(a);
   auto v = cut(a,b);
   for (Image& img : v) img = toOrigin(img);
   return compose(v, id);
 }
+
+// 
 Image splitCompose(Image_ a, int id, int include0) { //include0 = 0
   auto v = splitCols(a, include0);
   for (Image& img : v) img = toOrigin(compress(img));
   return compose(v, id);
 }
 
+// 
 Image cutIndex(Image_ a, Image_ b, int ind) {
   auto v = cut(a,b);
   if (ind < 0 || ind >= (int)v.size()) return badImg;
   return v[ind];
 }
 
-
+// 
 vImage pickMaxes(vImage_ v, function<int(Image_)> f, int invert = 0) {
   int n = v.size();
   if (!n) return {};
@@ -893,16 +931,22 @@ vImage pickMaxes(vImage_ v, function<int(Image_)> f, int invert = 0) {
   return ret_imgs;
 }
 
+// 
 vImage pickMaxes(vImage_ v, int id) {
   return pickMaxes(v, [id](Image_ img){return maxCriterion(img, id);}, 0);
 }
+
+// 
 vImage pickNotMaxes(vImage_ v, int id) {
   return pickMaxes(v, [id](Image_ img){return maxCriterion(img, id);}, 1);
 }
 
+// 
 Image cutPickMaxes(Image_ a, Image_ b, int id) {
   return compose(pickMaxes(cut(a,b), id), 0);
 }
+
+// 
 Image splitPickMaxes(Image_ a, int id) {
   return compose(pickMaxes(splitCols(a), id), 0);
 }
@@ -913,6 +957,7 @@ Image splitPickMaxes(Image_ a, int id) {
 //Must touch at least 2 opposite sides
 //Smallest piece should be as big as possible
 
+// 
 Image heuristicCut(Image_ img) {
   int ret = core::majorityCol(img, 1);
   int ret_score = -1;
@@ -979,22 +1024,28 @@ Image heuristicCut(Image_ img) {
   return filterCol(img,ret);
 }
 
+
+// 
 vImage cut(Image_ img) {
   return cut(img, heuristicCut(img));
 }
 
+// 
 Image cutPickMax(Image_ a, int id) {
   return cutPickMax(a, heuristicCut(a), id);
 }
+
+// 
 Image cutIndex(Image_ a, int ind) {
   return cutIndex(a, heuristicCut(a), ind);
 }
+
+// 
 Image cutPickMaxes(Image_ a, int id) {
   return cutPickMaxes(a, heuristicCut(a), id);
 }
 
-
-
+// 
 Image repeat(Image_ a, Image_ b, int pad) { //pad = 0
   if (a.w*a.h <= 0 || b.w*b.h <= 0) return badImg;
   Image ret;
@@ -1017,6 +1068,7 @@ Image repeat(Image_ a, Image_ b, int pad) { //pad = 0
   return ret;
 }
 
+// 
 Image mirror(Image_ a, Image_ b, int pad) { //pad = 0
   if (a.w*a.h <= 0 || b.w*b.h <= 0) return badImg;
   Image ret;
@@ -1044,6 +1096,7 @@ Image mirror(Image_ a, Image_ b, int pad) { //pad = 0
   return ret;
 }
 
+// 
 Image majCol(Image_ img) {
   return Col(core::majorityCol(img));
 }

@@ -10,6 +10,18 @@ using namespace std;
 #include "normalize.hpp"
 #include "spec.hpp"
 
+// =========
+// tasks.cpp
+// use manually created solutions
+// =========
+
+/**
+ * create the correct output grid for the training IOs based on by-hand programs
+ * @param img test input
+ * @param train train IOs
+ * @param taski
+ * @returns correct output grid (Image)
+ */
 Image solveTask(const Image& img, const vector<pair<Image,Image>>&train, int taski) {
   if (taski == 0) {
     return toOrigin(compress(filterCol(img, 1)));
@@ -329,10 +341,7 @@ Image solveTask(const Image& img, const vector<pair<Image,Image>>&train, int tas
   return img;
 }
 
-
-
-
-
+// evaluate solved-by-hand tasks
 void evalTasks() {
   vector<Sample> sample = readAll("training", 100);//evaluation
   Visu visu;
@@ -350,19 +359,6 @@ void evalTasks() {
       tie(s.test_in,s.test_out) = make_pair(sims[0].in(s.test_in), sims[0].out(s.test_in,s.test_out));
       s.test = {{s.test_in, s.test_out}};
     }
-    /*{
-      vector<Simplifier> sims;
-      normalizeRigid(s.train, sims);
-      for (auto&[in,out] : s.train)
-	tie(in,out) = make_pair(sims[0].in(in), sims[0].out(in,out));
-      for (auto&[in,out] : s.test)
-	tie(in,out) = make_pair(sims[0].in(in), sims[0].out(in,out));
-	}*/
-
-    /*visu.next(s.id);
-    for (auto [in,out] : s.train) {
-      visu.add(in,out);
-      }*/
 
     Image pred = solveTask(s.test[0].first, s.train, si);
     cout << "Task " << si << ": " << (pred == s.test[0].second ? "OK" : "Failed") << endl;

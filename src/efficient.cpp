@@ -4,6 +4,11 @@ using namespace std;
 #include "brute2.hpp"
 #include "visu.hpp"
 
+// =========
+// efficient.cpp
+// 
+// =========
+
 pair<int,bool> TinyHashMap::insert(ull key, int value) {
   if (table.size() <= data.size()*sparse_factor) {
     table.resize(max((int)(table.size() * resize_step), minsize));
@@ -30,9 +35,6 @@ pair<int,bool> TinyHashMap::insert(ull key, int value) {
     previ = data[previ].next;
   }
 }
-
-
-
 
 void TinyChildren::add(int fi, int to) {
   assert(fi >= 0);

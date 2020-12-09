@@ -1,13 +1,14 @@
-/*#include <vector>
-#include <regex>
-#include <cassert>
-#include <iostream>*/
 #include "precompiled_stl.hpp"
 #include <experimental/filesystem>
 
 using namespace std;
 #include "utils.hpp"
 #include "read.hpp"
+
+// =========
+// read.cpp
+// read and deal w files
+// =========
 
 Sample::Sample(string filename) {
   vector<Image> train_input, train_output;

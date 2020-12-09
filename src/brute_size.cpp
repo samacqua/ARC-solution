@@ -11,6 +11,8 @@ using namespace std;
 #include "pieces.hpp"
 #include "compose2.hpp"
 
+// All functions to brute force determine grid size
+
 extern int MAXDEPTH;
 
 /**

@@ -1,10 +1,4 @@
 #include "precompiled_stl.hpp"
-/*#include <cassert>
-#include <functional>
-#include <vector>
-#include <iostream>
-#include <map>
-#include <cmath>*/
 using namespace std;
 
 #include "utils.hpp"
@@ -13,6 +7,11 @@ using namespace std;
 #include "visu.hpp"
 #include "read.hpp"
 #include "normalize.hpp"
+
+// =========
+// normalize.cpp
+// 
+// =========
 
 vector<double> shapeFeatures(Image_ img, int col) {
   double fill_cnt = core::count(img);

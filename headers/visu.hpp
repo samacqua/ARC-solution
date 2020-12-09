@@ -6,5 +6,4 @@ struct Visu {
   void add(Image in, Image out);
 };
 
-void plot(const vector<vector<int>>&inp, const char*filename = "out.ppm");
 void print(Image img);

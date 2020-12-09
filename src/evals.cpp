@@ -139,8 +139,8 @@ Image solveEval(Image in, vector<pair<Image,Image>> train, int taski) {
     return out;
 
   } else if (taski == 10) {
-    Image sz = train[0].second;//core::full(in.w*5,in.h);
-    return mirror(in, sz);
+    Image size = train[0].second;//core::full(in.w*5,in.h);
+    return mirror(in, size);
 
   } else if (taski == 11) {
     return spreadCols(in,1);
@@ -184,7 +184,7 @@ Image solveEval(Image in, vector<pair<Image,Image>> train, int taski) {
 
   } else if (taski == 17) {
     in = sim.in(in);
-    point ins = compress(interior(filterCol(in, 2))).sz;
+    point ins = compress(interior(filterCol(in, 2))).size;
     int borders = ins.x == ins.y ? ins.x : 2;
     for (int i = 0; i < borders; i++)
       in = compose(in,makeBorder(in, 1));
@@ -217,11 +217,11 @@ Image solveEval(Image in, vector<pair<Image,Image>> train, int taski) {
     vImage s = splitAll(in);
     for (Image_ p : s) {
       for (Image_ q : s) {
-	if (p.sz == q.sz && !core::count(p) && core::isRectangle(q)) {
+	if (p.size == q.size && !core::count(p) && core::isRectangle(q)) {
 	  ret = compose(ret, align(q,p,2,2));
 	}
       }
-      if (p.sz != in.sz && core::count(interior(p)))
+      if (p.size != in.size && core::count(interior(p)))
 	ret = compose(ret, p);
     }
     return ret;

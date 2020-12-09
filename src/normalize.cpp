@@ -24,7 +24,7 @@ vector<double> shapeFeatures(Image_ img, int col) {
   for (int c = 0; c < 10; c++)
     r.push_back((c == col)+2);
 
-  point center2 = img.p*2+img.sz-point{1,1};
+  point center2 = img.p*2+img.size-point{1,1};
   for (int a = 0; a < 2; a++) {
     for (int b = 0; b < 2; b++) {
       for (int c = 0; c < 2; c++) {
@@ -317,7 +317,7 @@ void normalizeCols(vector<Sample>&sample) {
 	visu.add(in,out);
       visu.next(s.id);
       for (auto [in,out] : s.train) {
-	//visu.add(in,core::embed(core::filterCol(out,10), out.sz));
+	//visu.add(in,core::embed(core::filterCol(out,10), out.size));
 	visu.add(listCols(in, andin&~orout),listCols(out, andout&~orin));
       }
     }

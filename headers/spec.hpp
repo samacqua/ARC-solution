@@ -8,7 +8,7 @@ struct Spec {
     };
   };
   union {
-    point sz;
+    point size;
     struct {
       int w, h;
     };
@@ -28,7 +28,7 @@ struct Spec {
   }
   bool check(Image_ img) const {
     if (bad) return 0;
-    if (img.sz != sz || (!anypos && img.p != p)) return 0;
+    if (img.size != size || (!anypos && img.p != p)) return 0;
     for (int i = 0; i < mask.size(); i++)
       if ((mask[i]>>img.mask[i]&1) == 0) return 0;
     return 1;

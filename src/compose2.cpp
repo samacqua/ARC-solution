@@ -88,12 +88,12 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
   }
 
   vector<Image> init;
-  vector<int> sz;
+  vector<int> size;
   {
     for (int i = 0; i < pieces.dag.size(); i++) {
-      if (i < target.size()) assert(out_sizes[i] == target[i].sz);
+      if (i < target.size()) assert(out_sizes[i] == target[i].size);
       init.push_back(core::full(out_sizes[i], 10));
-      sz.push_back(init.back().mask.size());
+      size.push_back(init.back().mask.size());
     }
   }
 
@@ -102,7 +102,7 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
   int n = pieces.piece.size();
 
   int M = 0;
-  for (int s : sz) M += s;
+  for (int s : size) M += s;
 
   const int M64 = (M+63)/64;
   vector<ull> bad_mem, active_mem;
@@ -116,14 +116,14 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
     mybitset badi(M), blacki(M);
     for (int i = 0; i < n; i++) {
       int x = 0, y = 0;
-      for (int j = 0; j < sz.size(); j++) {
+      for (int j = 0; j < size.size(); j++) {
 	int*ind = &pieces.mem[pieces.piece[i].memi];
 	Image_ img = pieces.dag[j].getImg(ind[j]);
 	const vector<char>&p = img.mask;
 	const vector<char>&t = j < target.size() ? target[j].mask : init[j].mask;
-	assert(p.size() == sz[j]);
-	assert(t.size() == sz[j]);
-	for (int k = 0; k < sz[j]; k++) {
+	assert(p.size() == size[j]);
+	assert(t.size() == size[j]);
+	for (int k = 0; k < size[j]; k++) {
 	  badi.set  (x++, (p[k] != t[k]));
 	  blacki.set(y++, (p[k] == 0));
 	}
@@ -216,7 +216,7 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
       for (int l = 0; l < ret.size(); l++) {
 	int*ind = &pieces.mem[pieces.piece[i].memi];
 	const vector<char>&mask = pieces.dag[l].getImg(ind[l]).mask;
-	for (int j = 0; j < sz[l]; j++) {
+	for (int j = 0; j < size[l]; j++) {
 	  if ((best_active[x>>6]>>(x&63)&1) && ret[l].mask[j] == 10) {
 	    //assert(cur[x-1] == 0);
 	    ret[l].mask[j] = mask[j];
@@ -273,14 +273,14 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
 	mybitset cur(M), careMask(M);
 	{
 	  int base = 0;
-	  for (int j = 0; j < sz.size(); j++) {
+	  for (int j = 0; j < size.size(); j++) {
 	    if (!(mask>>j&1))
-	      for (int k = 0; k < sz[j]; k++)
+	      for (int k = 0; k < size[j]; k++)
 		cur.set(base+k, 1);
 	    if ((caremask>>j&1))
-	      for (int k = 0; k < sz[j]; k++)
+	      for (int k = 0; k < size[j]; k++)
 		careMask.set(base+k, 1);
-	    base += sz[j];
+	    base += size[j];
 	  }
 	}
 

@@ -101,9 +101,9 @@ void Functions3::add(string name, int cost, const function<vImage(vImage_)>&f, i
 }
 
 void Functions3::add(const vector<point>&sizes, string name, int cost, const function<Image(Image_,Image_)>&f, int list) { //list = 1
-  int szi = 0;
-  for (point sz : sizes) {
-    Image arg2 = core::empty(sz);
+  int sizei = 0;
+  for (point size : sizes) {
+    Image arg2 = core::empty(size);
     auto func = [f,arg2](const State& cur, State& nxt) {
 
       if (cur.isvec) return false;
@@ -122,7 +122,7 @@ void Functions3::add(const vector<point>&sizes, string name, int cost, const fun
       nxt.isvec = cur.isvec;
       return true;
     };
-    add(name+" "+to_string(szi++), cost, func, list);
+    add(name+" "+to_string(sizei++), cost, func, list);
   }
 }
 
@@ -326,7 +326,7 @@ int DAG::add(const State&nxt, bool force) { //force = false
   if (inserted || force) {
     bool ispiece = !nxt.isvec;
     if (!nxt.isvec && target_size != point{-1,-1})
-      ispiece &= (nxt.vimg[0].p == point{0,0} && nxt.vimg[0].sz == target_size);
+      ispiece &= (nxt.vimg[0].p == point{0,0} && nxt.vimg[0].size == target_size);
     /*{
       Node n;
       n.state = nxt;
@@ -383,12 +383,12 @@ void DAG::initial(Image_ test_in, const vector<pair<Image,Image>>&train, vector<
   add(State({in}, false, 0), true);
 
   //Output sizes
-  for (point sz : sizes)
-    add(State({core::empty(sz)}, false, 10), true);
+  for (point size : sizes)
+    add(State({core::empty(size)}, false, 10), true);
 
   // Outputs of other trains
   for (int tj = 0; tj < train.size(); tj++)
-    add(State({ti != tj ? train[tj].second : core::empty(train[tj].second.sz)}, false, 10), true);
+    add(State({ti != tj ? train[tj].second : core::empty(train[tj].second.size)}, false, 10), true);
 
   //add(State({greedyFillBlack2(in)}, false, 10), true);
 
@@ -542,9 +542,9 @@ vector<DAG> brutePieces2(Image_ test_in, const vector<pair<Image,Image>>&train, 
   for (int ti = 0; ti <= train.size(); ti++) {
     vector<point> sizes;
     if (ti < train.size())
-      sizes.push_back(train[ti].first.sz);
+      sizes.push_back(train[ti].first.size);
     else
-      sizes.push_back(test_in.sz);
+      sizes.push_back(test_in.size);
 
     if (out_sizes.size())
       sizes.push_back(out_sizes[ti]);
@@ -641,7 +641,7 @@ vector<DAG> brutePieces2(Image_ test_in, const vector<pair<Image,Image>>&train, 
 
     /*if (ti < train.size()) {
       for (Node&n : dag[ti].node) {
-	if (n.par > -1 && (n.isvec || n.img[0].w > 30 || n.img[0].h > 30)) {// || n.img[0].p != point{0,0} || n.img[0].sz != given_sizes[ti][1])) {
+	if (n.par > -1 && (n.isvec || n.img[0].w > 30 || n.img[0].h > 30)) {// || n.img[0].p != point{0,0} || n.img[0].size != given_sizes[ti][1])) {
 	  n.img.clear();
 	  n.img.shrink_to_fit();
 	}

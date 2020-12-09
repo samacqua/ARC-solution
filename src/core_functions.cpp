@@ -31,28 +31,28 @@ namespace core {
   }
 
 
-  Image full(point p, point sz, int filling) {//filling = 1
+  Image full(point p, point size, int filling) {//filling = 1
     Image ret;
     ret.p = p;
-    ret.sz = sz;
+    ret.size = size;
     ret.mask.assign(ret.h*ret.w, filling);
     return ret;
   }
 
-  Image empty(point p, point sz) {
-    return full(p, sz, 0);
+  Image empty(point p, point size) {
+    return full(p, size, 0);
   }
 
-  Image full(point sz, int filling) {//filling = 1
+  Image full(point size, int filling) {//filling = 1
     Image ret;
     ret.p = {0,0};
-    ret.sz = sz;
+    ret.size = size;
     ret.mask.assign(ret.h*ret.w, filling);
     return ret;
   }
 
-  Image empty(point sz) {
-    return full(point{0,0}, sz, 0);
+  Image empty(point size) {
+    return full(point{0,0}, size, 0);
   }
 
 
@@ -109,11 +109,11 @@ namespace core {
     }
     return ret;
   }
-  Image subImage(Image_ img, point p, point sz) {
-    assert(p.x >= 0 && p.y >= 0 && p.x+sz.x <= img.w && p.y+sz.y <= img.h && sz.x >= 0 && sz.y >= 0);
+  Image subImage(Image_ img, point p, point size) {
+    assert(p.x >= 0 && p.y >= 0 && p.x+size.x <= img.w && p.y+size.y <= img.h && size.x >= 0 && size.y >= 0);
     Image ret;
     ret.p = p+img.p;
-    ret.sz = sz;
+    ret.size = size;
     ret.mask.resize(ret.w*ret.h);
     for (int i = 0; i < ret.h; i++)
       for (int j = 0; j < ret.w; j++)

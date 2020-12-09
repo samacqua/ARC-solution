@@ -10,11 +10,11 @@ using namespace std;
 
 vImage splitAll(Image_ img) {
   vector<Image> ret;
-  Image done = core::empty(img.p,img.sz);
+  Image done = core::empty(img.p,img.size);
   for (int i = 0; i < img.h; i++) {
     for (int j = 0; j < img.w; j++) {
       if (!done(i,j)) {
-	Image toadd = core::empty(img.p,img.sz);
+	Image toadd = core::empty(img.p,img.size);
 	function<void(int,int,int)> dfs = [&](int r, int c, int col) {
 	  if (r < 0 || r >= img.h || c < 0 || c >= img.w || img(r,c) != col || done(r,c)) return;
 	  toadd(r,c) = img(r,c)+1;
@@ -107,9 +107,9 @@ Image makeBorder2(Image_ img, int usemaj = 1) {
   int bcol = 1;
   if (usemaj) bcol = core::majorityCol(img);
 
-  point rsz = img.sz+point{2,2};
-  if (max(rsz.x,rsz.y) > MAXSIDE || rsz.x*rsz.y > MAXAREA) return badImg;
-  Image ret = core::full(img.p-point{1,1}, rsz, bcol);
+  point resize = img.size+point{2,2};
+  if (max(resize.x,resize.y) > MAXSIDE || resize.x*resize.y > MAXAREA) return badImg;
+  Image ret = core::full(img.p-point{1,1}, resize, bcol);
   for (int i = 0; i < img.h; i++)
     for (int j = 0; j < img.w; j++)
       ret(i+1,j+1) = img(i,j);
@@ -118,9 +118,9 @@ Image makeBorder2(Image_ img, int usemaj = 1) {
 
 Image makeBorder2(Image_ img, Image_ bord) {
   int bcol = core::majorityCol(bord);
-  point rsz = img.sz+bord.sz+bord.sz;
-  if (max(rsz.x,rsz.y) > MAXSIDE || rsz.x*rsz.y > MAXAREA) return badImg;
-  Image ret = core::full(img.p-bord.sz, rsz, bcol);
+  point resize = img.size+bord.size+bord.size;
+  if (max(resize.x,resize.y) > MAXSIDE || resize.x*resize.y > MAXAREA) return badImg;
+  Image ret = core::full(img.p-bord.size, resize, bcol);
   for (int i = 0; i < img.h; i++)
     for (int j = 0; j < img.w; j++)
       ret(i+bord.h,j+bord.w) = img(i,j);
@@ -229,9 +229,9 @@ Image greedyFill(Image& ret, vector<pair<int,vector<int>>>&piece, Spec&done, int
 
 
 Image greedyFillBlack(Image_ img, int N = 3) {
-  Image ret = core::empty(img.p, img.sz);
+  Image ret = core::empty(img.p, img.size);
   Spec done;
-  done.sz = img.sz;
+  done.size = img.size;
   done.mask.assign(done.w*done.h,0);
 
   int donew = 1e6;
@@ -278,9 +278,9 @@ Image greedyFillBlack2(Image_ img, int N = 3) {
 }
 
 Image extend2(Image_ img, Image_ room) {
-  Image ret = core::empty(room.p, room.sz);
+  Image ret = core::empty(room.p, room.size);
   Spec done;
-  done.sz = room.sz;
+  done.size = room.size;
   done.mask.assign(done.w*done.h,0);
 
   point d = room.p-img.p;
@@ -322,7 +322,7 @@ Image extend2(Image_ img, Image_ room) {
 
 Image connect(Image_ img, int id) {
   assert(id >= 0 && id < 3);
-  Image ret = core::empty(img.p, img.sz);
+  Image ret = core::empty(img.p, img.size);
 
   //Horizontal
   if (id == 0 || id == 2) {
@@ -362,7 +362,7 @@ Image connect(Image_ img, int id) {
 }
 
 Image replaceTemplate(Image_ in, Image_ need_, Image_ marked_, int overlapping = 0, int rigids = 0) {
-  if (marked_.sz != need_.sz) return badImg;
+  if (marked_.size != need_.size) return badImg;
   if (need_.w*need_.h <= 0) return in;
 
   const int rots = rigids ? 8 : 1;
@@ -410,7 +410,7 @@ Image replaceTemplate(Image_ in, Image_ need_, Image_ marked_, int overlapping =
 
 
 Image swapTemplate(Image_ in, Image_ a, Image_ b, int rigids = 0) {
-  if (a.sz != b.sz) return badImg;
+  if (a.size != b.size) return badImg;
   if (a.w*a.h <= 0) return in;
 
   const int rots = rigids ? 8 : 1;
@@ -487,7 +487,7 @@ vImage splitColumns(Image_ img) {
   vector<Image> ret(img.w);
   for (int j = 0; j < img.w; j++) {
     ret[j].p = {j,0};
-    ret[j].sz = {1,img.h};
+    ret[j].size = {1,img.h};
     ret[j].mask.resize(img.h);
     for (int i = 0; i < img.h; i++)
       ret[j].mask[i] = img(i,j);
@@ -499,7 +499,7 @@ vImage splitRows(Image_ img) {
   vector<Image> ret(img.h);
   for (int i = 0; i < img.h; i++) {
     ret[i].p = {0,i};
-    ret[i].sz = {img.w,1};
+    ret[i].size = {img.w,1};
     ret[i].mask.resize(img.w);
     for (int j = 0; j < img.w; j++)
       ret[i].mask[j] = img(i,j);
@@ -694,8 +694,8 @@ Image composeGrowing(vImage_ imgs) {
     maxy = max(maxy, img.y+img.h);
   }
 
-  point rsz = {maxx-minx, maxy-miny};
-  if (max(rsz.x, rsz.y) > MAXSIDE || rsz.x*rsz.y > MAXAREA || rsz.x <= 0 || rsz.y <= 0)
+  point resize = {maxx-minx, maxy-miny};
+  if (max(resize.x, resize.y) > MAXSIDE || resize.x*resize.y > MAXAREA || resize.x <= 0 || resize.y <= 0)
     return badImg;
 
   vector<pair<int,int>> order(n);
@@ -704,7 +704,7 @@ Image composeGrowing(vImage_ imgs) {
   }
   sort(order.rbegin(), order.rend());
 
-  Image ret = core::empty(point{minx, miny}, rsz);
+  Image ret = core::empty(point{minx, miny}, resize);
   for (auto [cnt,imgi] : order) {
     Image_ img = imgs[imgi];
     int dx = img.x-ret.x, dy = img.y-ret.y;

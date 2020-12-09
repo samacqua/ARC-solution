@@ -32,10 +32,10 @@ Image getPos(Image_ img) {
   return core::full(img.p, {1,1}, core::majorityCol(img));
 }
 Image getSize(Image_ img) {
-  return core::full({0,0}, img.sz, core::majorityCol(img));
+  return core::full({0,0}, img.size, core::majorityCol(img));
 }
 Image hull(Image_ img) {
-  return core::full(img.p, img.sz, core::majorityCol(img));
+  return core::full(img.p, img.size, core::majorityCol(img));
 }
 Image toOrigin(Image img) {
   img.p = {0,0};
@@ -50,10 +50,10 @@ Image getH(Image_ img, int id) {
 }
 
 Image hull0(Image_ img) {
-  return core::full(img.p, img.sz, 0);
+  return core::full(img.p, img.size, 0);
 }
 Image getSize0(Image_ img) {
-  return core::full({0,0}, img.sz, 0);
+  return core::full({0,0}, img.size, 0);
 }
 
 
@@ -137,8 +137,8 @@ Image broadcast(Image_ col, Image_ shape, int include0) { //include0 = 1
 	if (weight[c] > w) maj = c, w = weight[c];
       }
       ret(i,j) = maj;
-      //point sz = {max(c1-c0, 1), max(r1-r0, 1)};
-      //ret(i,j) = core::majorityCol(core::subImage(col, {c0,r0}, sz), include0);
+      //point size = {max(c1-c0, 1), max(r1-r0, 1)};
+      //ret(i,j) = core::majorityCol(core::subImage(col, {c0,r0}, size), include0);
     }
   }
   return ret;
@@ -180,11 +180,11 @@ Image compress(Image_ img, Image_ bg) { // bg = Col(0)
   Image ret;
   if (xmi == 1e9) {
     ret.p = {0,0};
-    ret.sz = {0,0};
+    ret.size = {0,0};
     return ret;
   }
   ret.p = img.p + point{xmi, ymi};
-  ret.sz = {xma-xmi+1, yma-ymi+1};
+  ret.size = {xma-xmi+1, yma-ymi+1};
   ret.mask.resize(ret.h*ret.w);
   for (int i = ymi; i <= yma; i++) {
     for (int j = xmi; j <= xma; j++) {
@@ -197,7 +197,7 @@ Image compress(Image_ img, Image_ bg) { // bg = Col(0)
 
 
 Image embedSlow(Image_ img, Image_ shape) {
-  Image ret = core::empty(shape.p, shape.sz);
+  Image ret = core::empty(shape.p, shape.size);
   point d = shape.p-img.p;
   for (int i = 0; i < ret.h; i++)
     for (int j = 0; j < ret.w; j++)
@@ -206,7 +206,7 @@ Image embedSlow(Image_ img, Image_ shape) {
 }
 
 Image embed(Image_ img, Image_ shape) {
-  Image ret = core::empty(shape.p, shape.sz);
+  Image ret = core::empty(shape.p, shape.size);
   point d = shape.p-img.p;
   int sx = max(0,-d.x);
   int sy = max(0,-d.y);
@@ -227,19 +227,19 @@ Image compose(Image_ a, Image_ b, const function<int(int,int)>&f, int overlap_on
   if (overlap_only == 1) {
     ret.p = {max(a.p.x,b.p.x),
 	     max(a.p.y,b.p.y)};
-    point ra = a.p+a.sz, rb = b.p+b.sz;
-    ret.sz = {min(ra.x,rb.x),min(ra.y,rb.y)};
-    ret.sz = ret.sz-ret.p;
+    point ra = a.p+a.size, rb = b.p+b.size;
+    ret.size = {min(ra.x,rb.x),min(ra.y,rb.y)};
+    ret.size = ret.size-ret.p;
     if (ret.w <= 0 || ret.h <= 0) return badImg;
   } else if (overlap_only == 0) {
     ret.p = {min(a.p.x,b.p.x),
 	     min(a.p.y,b.p.y)};
-    point ra = a.p+a.sz, rb = b.p+b.sz;
-    ret.sz = {max(ra.x,rb.x),max(ra.y,rb.y)};
-    ret.sz = ret.sz-ret.p;
+    point ra = a.p+a.size, rb = b.p+b.size;
+    ret.size = {max(ra.x,rb.x),max(ra.y,rb.y)};
+    ret.size = ret.size-ret.p;
   } else if (overlap_only == 2) {
     ret.p = a.p;
-    ret.sz = a.sz;
+    ret.size = a.size;
   } else assert(0);
   if (ret.w > MAXSIDE || ret.h > MAXSIDE || ret.w*ret.h > MAXAREA) return badImg;
   ret.mask.assign(ret.w*ret.h, 0);
@@ -299,7 +299,7 @@ Image outerProductSI(Image_ a, Image_ b) {
 
 
 Image Fill(Image_ a) {
-  Image ret = core::full(a.p, a.sz, core::majorityCol(a));
+  Image ret = core::full(a.p, a.size, core::majorityCol(a));
   vector<pair<int,int>> q;
   for (int i = 0; i < a.h; i++)
     for (int j = 0; j < a.w; j++)
@@ -327,7 +327,7 @@ Image interior(Image_ a) {
 }
 
 Image border(Image_ a) {
-  Image ret = core::empty(a.p, a.sz);
+  Image ret = core::empty(a.p, a.size);
   vector<pair<int,int>> q;
   for (int i = 0; i < a.h; i++)
     for (int j = 0; j < a.w; j++)
@@ -431,7 +431,7 @@ Image align(Image_ a, Image_ b) {
 
 Image replaceCols(Image_ base, Image_ cols) {
   Image ret = base;
-  Image done = core::empty(base.p,base.sz);
+  Image done = core::empty(base.p,base.size);
   point d = base.p-cols.p;
   for (int i = 0; i < base.h; i++) {
     for (int j = 0; j < base.w; j++) {
@@ -463,9 +463,9 @@ Image replaceCols(Image_ base, Image_ cols) {
 
 //Exploit symmetries?
 Image center(Image_ img) {
-  point sz = {(img.w+1)%2+1,
+  point size = {(img.w+1)%2+1,
 	      (img.h+1)%2+1};
-  return core::full(img.p+(img.sz-sz)/2, sz);
+  return core::full(img.p+(img.size-size)/2, size);
 }
 
 Image transform(Image_ img, int A00, int A01, int A10, int A11) {
@@ -561,14 +561,14 @@ Image count(Image_ img, int id, int outType) {
   else if (id == 6) num = min(img.w,img.h);
   else assert(0);
 
-  point sz;
-  if (outType == 0) sz = {num,num};
-  else if (outType == 1) sz = {num,1};
-  else if (outType == 2) sz = {1,num};
+  point size;
+  if (outType == 0) size = {num,num};
+  else if (outType == 1) size = {num,1};
+  else if (outType == 2) size = {1,num};
   else assert(0);
 
-  if (max(sz.x,sz.y) > MAXSIDE || sz.x*sz.y > MAXAREA) return badImg;
-  return core::full(sz, core::majorityCol(img));
+  if (max(size.x,size.y) > MAXSIDE || size.x*size.y > MAXAREA) return badImg;
+  return core::full(size, core::majorityCol(img));
 }
 
 
@@ -594,7 +594,7 @@ Image myStack(Image_ a, Image b, int orient) {
 
 Image wrap(Image_ line, Image_ area) {
   if (line.w*line.h == 0 || area.w*area.h == 0) return badImg;
-  Image ans = core::empty(area.sz);
+  Image ans = core::empty(area.size);
   for (int i = 0; i < line.h; i++) {
     for (int j = 0; j < line.w; j++) {
       int x = j, y = i;
@@ -742,12 +742,12 @@ Image pickMax(vImage_ v, int id) {
 
 vImage cut(Image_ img, Image_ a) {
   vector<Image> ret;
-  Image done = core::empty(img.p,img.sz);
+  Image done = core::empty(img.p,img.size);
   point d = img.p-a.p;
   for (int i = 0; i < img.h; i++) {
     for (int j = 0; j < img.w; j++) {
       if (!done(i,j) && !a.safe(i+d.y,j+d.x)) {
-	Image toadd = core::empty(img.p,img.sz);
+	Image toadd = core::empty(img.p,img.size);
 	function<void(int,int)> dfs = [&](int r, int c) {
 	  if (r < 0 || r >= img.h || c < 0 || c >= img.w || a.safe(r+d.y,c+d.x) || done(r,c)) return;
 	  toadd(r,c) = img(r,c)+1;
@@ -918,7 +918,7 @@ Image heuristicCut(Image_ img) {
   int ret_score = -1;
 
   int mask = core::colMask(img);
-  Image done = core::empty(img.p,img.sz);
+  Image done = core::empty(img.p,img.size);
   for (int col = 0; col < 10; col++) {
     if ((mask>>col&1) == 0) continue;
     fill(done.mask.begin(), done.mask.end(), 0);
@@ -999,7 +999,7 @@ Image repeat(Image_ a, Image_ b, int pad) { //pad = 0
   if (a.w*a.h <= 0 || b.w*b.h <= 0) return badImg;
   Image ret;
   ret.p = b.p;
-  ret.sz = b.sz;
+  ret.size = b.size;
   ret.mask.resize(ret.w*ret.h,0);
 
   const int W = a.w+pad, H = a.h+pad;
@@ -1021,7 +1021,7 @@ Image mirror(Image_ a, Image_ b, int pad) { //pad = 0
   if (a.w*a.h <= 0 || b.w*b.h <= 0) return badImg;
   Image ret;
   ret.p = b.p;
-  ret.sz = b.sz;
+  ret.size = b.size;
   ret.mask.resize(ret.w*ret.h);
   const int W = a.w+pad, H = a.h+pad;
   const int W2 = W*2, H2 = H*2;

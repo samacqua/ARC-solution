@@ -5,7 +5,7 @@ struct hashEntry {
 };
 struct TinyHashMap {
   static constexpr double sparse_factor = 1.5, resize_step = 2;
-  static constexpr int minsz = 1<<20;
+  static constexpr int minsize = 1<<20;
   vector<hashEntry> data;
   vector<int> table;
   ull mask;
@@ -30,7 +30,7 @@ struct TinyChildren {
     int*dense;
     pair<int,int>*sparse;
   };
-  short sz = 0, cap = 0;
+  short size = 0, cap = 0;
   TinyChildren() {
     dense = NULL;
   }
@@ -43,7 +43,7 @@ struct TinyChildren {
   TinyChildren(const TinyChildren&) = delete;
   TinyChildren(TinyChildren&&o) {
     dense = o.dense;
-    sz = o.sz, cap = o.cap;
+    size = o.size, cap = o.cap;
     o.dense = NULL;
   }
 
@@ -51,7 +51,7 @@ struct TinyChildren {
   void clear() {
     delete[]dense;
     dense = NULL;
-    sz = cap = 0;
+    size = cap = 0;
   }
 };
 
@@ -87,7 +87,7 @@ struct TinyBank {
 struct TinyImage {
   static constexpr int align = 16;
   uint32_t memi;
-  short sz;
+  short size;
   char x, y, w, h;
   uint8_t tree[9];
   TinyImage(Image_ img, TinyBank&bank);

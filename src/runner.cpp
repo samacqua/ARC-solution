@@ -132,21 +132,21 @@ void run(int only_sid = -1, int arg = -1) {
     auto [test_in,test_out] = sim(s.test_in, s.test_out);
 
     {
-      int insumsz = 0, outsumsz = 0, macols = 0;
+      int insumsize = 0, outsumsize = 0, macols = 0;
       int maxside = 0, maxarea = 0;
       for (auto&[in,out] : s.train) {
 	maxside = max({maxside, in.w, in.h, out.w, out.h});
 	maxarea = max({maxarea, in.w*in.h, out.w*out.h});
-	insumsz += in.w*in.h;
-	outsumsz += out.w*out.h;
+	insumsize += in.w*in.h;
+	outsumsize += out.w*out.h;
 	macols = max(macols, __builtin_popcount(core::colMask(in)));
       }
-      int sumsz = max(insumsz, outsumsz);
-      cerr << "Features: " << insumsz << ' ' << outsumsz << ' ' << macols << endl;
+      int sumsize = max(insumsize, outsumsize);
+      cerr << "Features: " << insumsize << ' ' << outsumsize << ' ' << macols << endl;
 
       double w[4] = {1.2772523019346949, 0.00655104, 0.70820414, 0.00194519};
-      double expect_time3 = w[0]+w[1]*sumsz+w[2]*macols+w[1]*w[2]*sumsz*macols;
-      //MAXDEPTH = 2;//(expect_time3 < 30 ? 4 : 3);//sumsz < 20*20*3 ? 3 : 2;
+      double expect_time3 = w[0]+w[1]*sumsize+w[2]*macols+w[1]*w[2]*sumsize*macols;
+      //MAXDEPTH = 2;//(expect_time3 < 30 ? 4 : 3);//sumsize < 20*20*3 ? 3 : 2;
       cerr << "MAXDEPTH: " << MAXDEPTH << endl;
 
 
@@ -184,7 +184,7 @@ void run(int only_sid = -1, int arg = -1) {
 	other += sizeof(TinyNode)*d.tiny_node.size();
 	size += 4*d.tiny_node.bank.mem.size();
 	for (TinyNode&n : d.tiny_node.node) {
-	  if (n.child.sz < TinyChildren::dense_thres)
+	  if (n.child.size < TinyChildren::dense_thres)
 	    child += n.child.cap*8;
 	  else
 	    child += n.child.cap*4;
@@ -208,7 +208,7 @@ void run(int only_sid = -1, int arg = -1) {
     }
 
     int s1 = 0;
-    if (!eval) s1 = (out_sizes.back() == test_out.sz);
+    if (!eval) s1 = (out_sizes.back() == test_out.size);
 
     //Assemble pieces into candidates
     vector<Candidate> cands;

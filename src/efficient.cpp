@@ -6,7 +6,7 @@ using namespace std;
 
 pair<int,bool> TinyHashMap::insert(ull key, int value) {
   if (table.size() <= data.size()*sparse_factor) {
-    table.resize(max((int)(table.size() * resize_step), minsz));
+    table.resize(max((int)(table.size() * resize_step), minsize));
     assert((table.size()&(table.size()-1)) == 0);
     mask = table.size()-1;
 
@@ -36,14 +36,14 @@ pair<int,bool> TinyHashMap::insert(ull key, int value) {
 
 void TinyChildren::add(int fi, int to) {
   assert(fi >= 0);
-  if (sz+1 == dense_thres) {
+  if (size+1 == dense_thres) {
     //Convert to dense
-    cap = max(sparse[sz-1].first,fi)+1; //Max fi
+    cap = max(sparse[size-1].first,fi)+1; //Max fi
     pair<int,int>*old = sparse;
     dense = new int[cap];
     fill_n(dense, cap, None);
     dense[fi] = to;
-    for (int i = 0; i < sz; i++) {
+    for (int i = 0; i < size; i++) {
       auto [fi, to] = old[i];
       assert(fi >= 0);
       assert(fi < cap);
@@ -51,20 +51,20 @@ void TinyChildren::add(int fi, int to) {
     }
     assert(old);
     delete[]old;
-    sz = dense_thres;
+    size = dense_thres;
   }
 
-  if (sz < dense_thres) {
+  if (size < dense_thres) {
     //Sparse
-    if (sz+1 > cap) {
+    if (size+1 > cap) {
       cap = max((cap+1)*3/2,4);
       pair<int,int>*old = sparse;
       sparse = new pair<int,int>[cap];
-      copy_n(old, sz, sparse);
+      copy_n(old, size, sparse);
       if (old) delete[]old;
     }
     {
-      int p = sz++;
+      int p = size++;
       while (p && sparse[p-1].first > fi) {
 	sparse[p] = sparse[p-1];
 	p--;
@@ -88,8 +88,8 @@ void TinyChildren::add(int fi, int to) {
 }
 int TinyChildren::get(int fi) {
   assert(fi >= 0);
-  if (sz < dense_thres) {
-    int low = 0, high = sz-1;
+  if (size < dense_thres) {
+    int low = 0, high = size-1;
     while (low <= high) {
       int mid = (low+high)>>1;
       int cfi = sparse[mid].first;
@@ -104,10 +104,10 @@ int TinyChildren::get(int fi) {
   }
 }
 void TinyChildren::legacy(vector<pair<int,int>>&ret) {
-  if (sz < dense_thres) {
+  if (size < dense_thres) {
     //Sparse
-    ret.resize(sz);
-    for (int i = 0; i < sz; i++)
+    ret.resize(size);
+    for (int i = 0; i < size; i++)
       ret[i] = sparse[i];
   } else {
     //Dense
@@ -184,14 +184,14 @@ TinyImage::TinyImage(Image_ img, TinyBank&bank) {
 
   assert((bank.curi+align-1)/align < 1ll<<32);
   memi = (bank.curi+align-1)/align;
-  sz = 0;
+  size = 0;
   ll memstart = (ll)memi*align;
   bank.alloc();
   for (char c : img.mask) {
-    bank.set(memstart+ sz, code[c], codelen[c]);
-    sz += codelen[c];
+    bank.set(memstart+ size, code[c], codelen[c]);
+    size += codelen[c];
     //for (int i = 0; i < codelen[c]; i++)
-    //bank.set(memstart+ sz++, code[c]>>i&1);
+    //bank.set(memstart+ size++, code[c]>>i&1);
   }
   /*for (int it = 0; it < 10; it++)
     cout << (int)img.mask[it] << ' ';
@@ -199,7 +199,7 @@ TinyImage::TinyImage(Image_ img, TinyBank&bank) {
     for (int it = 0; it < 20; it++)
     cout << bank.get(memi+it);
     cout << endl;*/
-  bank.curi = memstart+sz;
+  bank.curi = memstart+size;
 }
 
 
@@ -209,7 +209,7 @@ Image TinyImage::decompress(TinyBank&bank) {
   ret.mask.resize(ret.w*ret.h);
   int treep = 0, maski = 0;
   ll memstart = (ll)memi*align;
-  for (ll i = memstart; i < memstart+sz; i++) {
+  for (ll i = memstart; i < memstart+size; i++) {
     int bit = bank.get(i);
     int child = tree[treep]>>bit*4&15;
     if (child < 10) {

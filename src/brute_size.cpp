@@ -38,21 +38,21 @@ pair<vector<int>,double> solveSingleDimension(vector<vector<int>>&seeds, const v
   pair<int,double> best = {-1,1e9};
 
   // anonymous function to update dimension size guess if better than current best
-  auto add = [&](const vector<int>&szs, double loss) {
+  auto add = [&](const vector<int>&sizes, double loss) {
 
     // calculate number of sizes that are correct for train IOs
     int oks = 0;
     for (int ti = 0; ti < target.size(); ti++)
-      oks += (szs[ti] == target[ti]);
+      oks += (sizes[ti] == target[ti]);
 
     // store fitness of grid size prediction
     pair<int,double> cand = {oks, -loss-10};
-    int test_output_sz = szs.back();
+    int test_output_size = sizes.back();
 
     // update grid size guess if grid size is within ARC bounds (1 and 30) and better than current best
-    if (test_output_sz >= 1 && test_output_sz <= 30 && cand > best) {
+    if (test_output_size >= 1 && test_output_size <= 30 && cand > best) {
       best = cand;
-      ans = szs;
+      ans = sizes;
     }
   };
 
@@ -62,14 +62,14 @@ pair<vector<int>,double> solveSingleDimension(vector<vector<int>>&seeds, const v
   }
 
   // search multipliers 1 - 6 and offset -3 - 3 for each seed
-  vector<int> szs(n);
+  vector<int> sizes(n);
   for (int i = 0; i < seeds.size(); i++) {
     double a = i+1;
     for (int w = 1; w < 6; w++) {
       for (int x = -3; x <= 3; x++) {
         for (int k = 0; k < n; k++)
-          szs[k] = seeds[i][k]*w+x;
-        add(szs, a*w*(abs(x)+1));
+          sizes[k] = seeds[i][k]*w+x;
+        add(sizes, a*w*(abs(x)+1));
       }
     }
   }
@@ -82,7 +82,7 @@ pair<vector<int>,double> solveSingleDimension(vector<vector<int>>&seeds, const v
  brute force solve both dimensions of the output grid
  @param seeds input grid sizes
  @param target correct output grid sizes
- @returns best grid sze
+ @returns best grid sizee
  */
 point solveSize(vector<vector<point>>&seeds, const vector<point>& target) {
 
@@ -90,22 +90,22 @@ point solveSize(vector<vector<point>>&seeds, const vector<point>& target) {
   pair<int,double> best = {-1,1e9};
 
   // anonymous function to update grid size guess if better than current best
-  auto add = [&](const vector<point>&szs, double loss) {
+  auto add = [&](const vector<point>&sizes, double loss) {
     int oks = 0;
     for (int ti = 0; ti < target.size(); ti++)
-      oks += (szs[ti] == target[ti]);
+      oks += (sizes[ti] == target[ti]);
     pair<int,double> cand = {oks, -loss};
-    point sz = szs.back();
-    if (sz.x >= 1 && sz.x <= 30 &&
-        sz.y >= 1 && sz.y <= 30 &&
+    point size = sizes.back();
+    if (size.x >= 1 && size.x <= 30 &&
+        size.y >= 1 && size.y <= 30 &&
         cand > best) {
       best = cand;
-      ans = sz;
+      ans = size;
     }
   };
 
   int n = target.size()+1;
-  vector<point> szs(n);
+  vector<point> sizes(n);
 
   // try a simple multiplier and offset for each dimension
   for (int i = 0; i < seeds.size(); i++) {
@@ -115,8 +115,8 @@ point solveSize(vector<vector<point>>&seeds, const vector<point>& target) {
         for (int y = -3; y <= 3; y++) {
           for (int x = -3; x <= 3; x++) {
             for (int k = 0; k < n; k++)
-	            szs[k] = {seeds[i][k].x*w+x, seeds[i][k].y*h+y};
-	          add(szs, a*w*h*(abs(x)+1)*(abs(y)+1));
+	            sizes[k] = {seeds[i][k].x*w+x, seeds[i][k].y*h+y};
+	          add(sizes, a*w*h*(abs(x)+1)*(abs(y)+1));
 	        }
 	      }
       }
@@ -131,11 +131,11 @@ point solveSize(vector<vector<point>>&seeds, const vector<point>& target) {
 	      double b = j+1;
 	      for (int d = 0; d < 3; d++) {
 	        for (int k = 0; k < n; k++) {
-	          szs[k] = seeds[i][k];
-            if (d == 0 || d == 2) szs[k].x = szs[k].x+seeds[j][k].x;
-            if (d == 1 || d == 2) szs[k].y = szs[k].y+seeds[j][k].y;
+	          sizes[k] = seeds[i][k];
+            if (d == 0 || d == 2) sizes[k].x = sizes[k].x+seeds[j][k].x;
+            if (d == 1 || d == 2) sizes[k].y = sizes[k].y+seeds[j][k].y;
           }
-	      add(szs, a*b);
+	      add(sizes, a*b);
 	      }
       }
     }
@@ -182,7 +182,7 @@ point solveSize(vector<vector<point>>&seeds, const vector<point>& target) {
 vector<point> bruteSize(Image_ test_in, vector<pair<Image,Image>> train) {
 
   vector<point> out_sizes;
-  for (auto [in,out] : train) out_sizes.push_back(out.sz);
+  for (auto [in,out] : train) out_sizes.push_back(out.size);
 
   // get objects from training IOs and test input
   int unconstrained_max_depth = MAXDEPTH;
@@ -198,23 +198,23 @@ vector<point> bruteSize(Image_ test_in, vector<pair<Image,Image>> train) {
 
   // target is the grid output sizes (copy of output_sizes)
   vector<point> target;
-  for (auto [in,out] : train) target.push_back(out.sz);
+  for (auto [in,out] : train) target.push_back(out.size);
 
   // not sure -- will circle back after looking through Piece code
   // TODO: leave better comment
   vector<vector<point>> seeds;
   set<vector<point>> seen;
   for (Piece3&p : pieces.piece) {
-    vector<point> sz;
+    vector<point> size;
     int ok = 1;
     int*ind = &pieces.mem[p.memi];
     for (int ti = 0; ti <= train.size(); ti++) {
       if (pieces.dag[ti].tiny_node[ind[ti]].isvec) ok = 0;
-      else sz.push_back(pieces.dag[ti].getImg(ind[ti]).sz);
+      else size.push_back(pieces.dag[ti].getImg(ind[ti]).size);
     }
     if (ok) {
-      if (seen.insert(sz).second)
-	      seeds.push_back(sz);
+      if (seen.insert(size).second)
+	      seeds.push_back(size);
     }
   }
 

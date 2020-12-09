@@ -17,6 +17,6 @@ int scoreCands(const vector<Candidate>&cands, Image_ test_in, Image_ test_out) {
 int scoreAnswers(vImage_ answers, Image_ test_in, Image_ test_out) {
   assert(answers.size() <= 3);
   for (Image_ answer : answers)
-    if (answer.sz == test_out.sz && answer.mask == test_out.mask) return 1;
+    if (answer.size == test_out.size && answer.mask == test_out.mask) return 1;
   return 0;
 }

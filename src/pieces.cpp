@@ -233,7 +233,7 @@ Pieces makePieces2(vector<DAG>&dag, vector<pair<Image,Image>> train, vector<poin
       }
       look_v.push_back(p);
       look_imgs.push_back(d.getImg(p));
-      /*if (n.isvec || n.img[0].sz != given_sizes[di][1]) {
+      /*if (n.isvec || n.img[0].size != given_sizes[di][1]) {
 	cout << "Bad" << endl;
 	}*/
       di++;

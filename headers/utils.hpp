@@ -42,7 +42,7 @@ struct Image {
     };
   };
   union {
-    point sz;
+    point size;
     struct {
       int w, h;
     };
@@ -70,13 +70,13 @@ using vImage = vector<Image>;
 using vImage_ = const vector<Image>&;
 
 inline bool operator==(Image_ a, Image_ b) {
-  return tie(a.p,a.sz,a.mask) == tie(b.p,b.sz,b.mask);
+  return tie(a.p,a.size,a.mask) == tie(b.p,b.size,b.mask);
 }
 inline bool operator!=(Image_ a, Image_ b) {
-  return tie(a.p,a.sz,a.mask) != tie(b.p,b.sz,b.mask);
+  return tie(a.p,a.size,a.mask) != tie(b.p,b.size,b.mask);
 }
 inline bool operator<(Image_ a, Image_ b) {
-  if (a.sz != b.sz) return tie(a.w,a.h) < tie(b.w,b.h);
+  if (a.size != b.size) return tie(a.w,a.h) < tie(b.w,b.h);
   return a.mask < b.mask;
 }
 

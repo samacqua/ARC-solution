@@ -137,7 +137,7 @@ void run(int only_sid = -1, int arg = -1) {
         maxarea = max({maxarea, in.w*in.h, out.w*out.h});
         insumsize += in.w*in.h;
         outsumsize += out.w*out.h;
-        maxcols = max(macols, __builtin_popcount(core::colMask(in)));
+        maxcols = max(maxcols, __builtin_popcount(core::colMask(in)));
       }
       int sumsize = max(insumsize, outsumsize);
 
@@ -178,7 +178,7 @@ void run(int only_sid = -1, int arg = -1) {
         }
 	      maps += 16*d.hashi.data.size()+4*d.hashi.table.size();
       }
-      for (Piece3&p : pieces.piece) {
+      for (Piece&p : pieces.piece) {
 	      inds += sizeof(p);
       }
       inds += sizeof(pieces.mem[0])*pieces.mem.size();

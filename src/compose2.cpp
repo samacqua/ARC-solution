@@ -60,7 +60,7 @@ vector<Candidate> greedyCompose2(Pieces&pieces, vector<Image>&target, vector<poi
   // assert each piece is at a deeper depth than the previous 
   {
     int d = -1;
-    for (Piece3&p : pieces.piece) {
+    for (Piece&p : pieces.piece) {
       assert(p.depth >= d);
       d = p.depth;
     }
@@ -334,19 +334,6 @@ vector<Candidate> composePieces2(Pieces&pieces, vector<pair<Image, Image>> train
   vector<Image> target;
   for (auto [in,out] : train)
     target.push_back(out);
-
-  /*
-  for (Piece3&p : pieces.piece) {
-    vector<Image> imgs;
-    //assert(p.ind.size() == pieces.dag.size());
-    int*ind = &pieces.mem[p.memi];
-    for (int i = 0; i < pieces.dag.size(); i++) {
-      //assert(p.ind[i] >= 0 && p.ind[i] < (int)pieces.dag[i].node.size());
-      imgs.push_back(pieces.dag[i].getImg(ind[i]));
-    }
-    cands.emplace_back(imgs, 1, p.depth, p.depth);
-  }
-  */
 
   for (const Candidate&cand : greedyCompose2(pieces, target, out_sizes)) {
     cands.push_back(cand);

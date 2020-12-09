@@ -1,8 +1,7 @@
-//const int MAXSIDE = 100, MAXAREA = 40*40, MAXPIXELS = 40*40*5;
 extern int MAXSIDE, MAXAREA, MAXPIXELS;
 
-//#define CHECK_BOUNDS
-
+// Simple struct stores x and y component
+// Can be used to store grid size, grid location, ...
 struct point {
   int x, y;
 };
@@ -33,7 +32,8 @@ inline bool operator!=(const point& a, const point& b) {
 }
 
 
-
+// Grid/object struct
+// has a position property, size property, and mask
 struct Image {
   union {
     point p;
@@ -90,22 +90,13 @@ inline ull hashImage(Image_ img) {
   r = r*base+img.x;
   r = r*base+img.y;
   for(char c : img.mask) {
-    //assert(c >= 0 && c < 10);
     r = r*base+c;
   }
   return r;
 }
 
-struct Piece {
-  vector<Image> imgs;
-  double node_prob;
-  int keepi, knowi;
-};
-
 const Image badImg = {{0,0},{0,0},{}};
 const Image dummyImg = {{0,0},{1,1},{0}};
-
-using Piece_ = const Piece&;
 
 template<class T, class F>
 int checkAll(const vector<T>&v, F f) {

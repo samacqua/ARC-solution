@@ -96,7 +96,7 @@ Pieces makePieces(vector<DAG>&dag, vector<pair<Image,Image>> train, vector<point
           ok &= dag[i].tiny_node[ind[i]].ispiece;
         }
         if (ok && maxdepth >= depth) {
-          Piece3 p;
+          Piece p;
           p.memi = memi;
           p.depth = depth;
           pieces.piece.push_back(p);
@@ -213,7 +213,7 @@ Pieces makePieces(vector<DAG>&dag, vector<pair<Image,Image>> train, vector<point
   }
   pieces.dag = move(dag);
 
-  for (Piece3&p : pieces.piece) {
+  for (Piece&p : pieces.piece) {
     for (int i = 0; i < pieces.dag.size(); i++) {
       int*ind = &mem[p.memi];
       assert(ind[i] >= 0 && ind[i] < pieces.dag[i].tiny_node.size());

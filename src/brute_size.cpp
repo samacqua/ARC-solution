@@ -204,7 +204,7 @@ vector<point> bruteSize(Image_ test_in, vector<pair<Image,Image>> train) {
   // TODO: leave better comment
   vector<vector<point>> seeds;
   set<vector<point>> seen;
-  for (Piece3&p : pieces.piece) {
+  for (Piece&p : pieces.piece) {
     vector<point> size;
     int ok = 1;
     int*ind = &pieces.mem[p.memi];

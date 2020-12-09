@@ -1,15 +1,11 @@
-/*struct Piece2 {
-  vector<int> ind;
-  int depth;
-  };*/
-struct Piece3 {
+
+struct Piece {
   int memi, depth;
 };
 
 struct Pieces {
   vector<DAG> dag;
-  vector<Piece3> piece;
-  //vector<vector<int>> seen;
+  vector<Piece> piece;
   vector<int> mem;
 };
 

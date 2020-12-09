@@ -1,21 +1,16 @@
-Hello!
+This is a fork from top-quark's [top submission](https://github.com/top-quarks/ARC-solution) from the 2020 Abstraction and Reasoning Challenge Kaggle Competition.
 
-Below you can find a outline of how to run my solution to Kaggle's Abstraction and Reasoning Challenge.
-If you run into any trouble with the setup/code or have any questions you can contact me at top-quarks@protonmail.com
+This fork will comment the code to make it readable for researchers, and make it easier to build on different machines.
+
+Below you can find a outline of how to run the solution to Kaggle's Abstraction and Reasoning Challenge.
 
 ## Tested computer setup
- - Ubuntu 18.04.4 LTS
- - Intel® Core™ i7-7700HQ CPU @ 2.80GHz × 8
- - 16GB RAM
- - Python 3.6.9
- - g++ 7.5.0
-
-Any Python 3 and g++ supporting c++17 should work.
+Any Python 3 and g++ supporting c++17 should work (with a little debugging).
 
 ## Running on public data
 The comptition data is already in the "dataset" folder for conveniece.
 
-You can run the model on the evaluation dataset using depth 2 with (takes 70 seconds on my computer):
+You can run the model on the evaluation dataset using depth 2 (takes around 1 minute):
 
 ```python3 run.py```
 

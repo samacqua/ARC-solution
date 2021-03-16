@@ -10,16 +10,12 @@ using namespace std;
 #include "normalize.hpp"
 #include "tasks.hpp"
 #include "evals.hpp"
-
 #include "brute2.hpp"
-
 #include "score.hpp"
 #include "load.hpp"
-
 #include "deduce_op.hpp"
 #include "pieces.hpp"
 #include "compose2.hpp"
-
 #include "brute_size.hpp"
 
 #include <thread>
@@ -29,6 +25,7 @@ using namespace std;
 // puts together all logic to search in parallel
 // =========
 
+// format string so cout is colored
 string green(string s) {
   return ("\033[1;32m"+s+"\033[0m");
 }
@@ -42,7 +39,7 @@ string red(string s) {
   return ("\033[1;31m"+s+"\033[0m");
 }
 
-
+// print if got task correct
 void writeVerdict(int si, string sid, int verdict) {
   printf("Task #%2d (%s): ", si, sid.c_str());
   switch (verdict) {
@@ -54,27 +51,18 @@ void writeVerdict(int si, string sid, int verdict) {
   }
 }
 
-
 int MAXDEPTH = -1; //Argument
-
 int MAXSIDE = 100, MAXAREA = 40*40, MAXPIXELS = 40*40*5; //Just default values
-
 int print_times = 1, print_mem = 1, print_nodes = 1;
 
-void run(int only_sid = -1, int arg = -1) {
-  //rankFeatures();
-  //evalNormalizeRigid();
-  //evalTasks();
-  //bruteSubmission();
-  //bruteSolve();
-  //evalEvals(1);
-  //deduceEvals();
+void run(int single_task_id = -1, int arg = -1) {
 
   // parse args
   int no_norm   = (arg >= 10 && arg < 20);
   int add_flips = (arg >= 20 && arg < 40);
   int add_flip_id = (arg >= 30 && arg < 40 ? 7 : 6);
 
+  // arg is max depth i guess?
   if (arg == -1) arg = 2;
   MAXDEPTH = arg % 10 * 10;
 
@@ -99,11 +87,11 @@ void run(int only_sid = -1, int arg = -1) {
   int dones = 0;
   Loader load(sample.size());
 
-  assert(only_sid < sample.size());
+  assert(single_task_id < sample.size());
   //Remember to fix Timers before running parallel
 
   for (int si = 0; si < sample.size(); si++) {
-    if (only_sid != -1 && si != only_sid) continue;
+    if (single_task_id != -1 && si != single_task_id) continue;
 
     //if (si == 30) assert(0);
 
@@ -264,21 +252,22 @@ void run(int only_sid = -1, int arg = -1) {
 
     // add info about success
     if (!eval) {
-      if (s3) verdict[si] = 3;
-      else if (s2) verdict[si] = 2;
-      else if (s1) verdict[si] = 1;
-      else verdict[si] = 0;
+      if (s3) verdict[si] = 3;      // top 3 submission
+      else if (s2) verdict[si] = 2; // generated correct output, not included in top 3
+      else if (s1) verdict[si] = 1; // generated correct grid size
+      else verdict[si] = 0;         // nothing correct
       scores[verdict[si]]++;
 
       writeVerdict(si, s.id, verdict[si]);
     }
     {
-      string fn = "output/answer_"+to_string(only_sid)+"_"+to_string(arg)+".csv";
+      string fn = "output/answer_"+to_string(single_task_id)+"_"+to_string(arg)+".csv";
       writeAnswersWithScores(s, fn, rec_answers, answer_scores);
     }
   }
 
-  if (!eval && only_sid == -1) {
+  // for all submissions, write if correct and then summarize
+  if (!eval && single_task_id == -1) {
     for (int si = 0; si < sample.size(); si++) {
       Sample&s = sample[si];
       writeVerdict(si, s.id, verdict[si]);

@@ -108,6 +108,8 @@ Image filterCol(Image_ img, int id) {
 Image broadcast(Image_ col, Image_ shape, int include0) { //include0 = 1
   if (col.w*col.h == 0 || shape.w*shape.h == 0) return badImg;
 
+  // if col fits perfectly in shape
+  // continue pattern of col to fit shape
   if (shape.w%col.w == 0 && shape.h%col.h == 0) {
     Image ret = shape;
     int dh = shape.h/col.h, dw = shape.w/col.w;

@@ -9,4 +9,4 @@ count_tasks
 run.dSYM/
 .vscode/
 .DS_Store
-.DS_Store?
+count_tasks.dSYM/

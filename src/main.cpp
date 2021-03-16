@@ -15,15 +15,15 @@ int main(int argc, char**argv) {
   //evalTasks();
   //bruteSubmission();
   //bruteSolve();
-  int only_sid = -1;
+  int single_task_id = -1;
   if (argc >= 2) {
-    only_sid = atoi(argv[1]);
-    printf("Running only task # %d\n", only_sid);
+    single_task_id = atoi(argv[1]);
+    printf("Running only task # %d\n", single_task_id);
   }
   int maxdepth = -1;
   if (argc >= 3) {
     maxdepth = atoi(argv[2]);
     printf("Using max depth %d\n", maxdepth);
   }
-  run(only_sid, maxdepth);
+  run(single_task_id, maxdepth);
 }

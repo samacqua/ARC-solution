@@ -306,12 +306,12 @@ void DAG::build() {
       nxt.depth = depth+funcs.cost[fi];
       if (nxt.depth > MAXDEPTH) continue;
       if (funcs.f_list[fi](cur_state, nxt)) {
-	int newi = add(nxt);
-	//child.emplace_back(fi, newi);
-	tiny_node.addChild(curi, fi, newi);
-      } else {
-	tiny_node.addChild(curi, fi, -1);
-	//child.emplace_back(fi, -1);
+        int newi = add(nxt);
+        //child.emplace_back(fi, newi);
+        tiny_node.addChild(curi, fi, newi);
+            } else {
+        tiny_node.addChild(curi, fi, -1);
+        //child.emplace_back(fi, -1);
       }
 
     }
@@ -537,5 +537,56 @@ vector<DAG> brutePieces(Image_ test_in, const vector<pair<Image,Image>>&train, v
     cout << endl;
   }
 
+  for (int i=0; i<dag.size(); i++) {
+      print_DAG(&dag[i]);
+  }
   return dag;
+}
+
+void print_DAG(DAG *dag) {
+//   struct DAG {
+//   Functions funcs;
+//   TinyNodeBank tiny_node;
+//   int givens;
+//   point target_size;
+//   TinyHashMap hashi;
+//   vector<int> binary;
+// };
+
+cout << "\n==== DAG ====\n";
+
+cout << "\tfunctions:\n\t\t";
+for (int j=0; j<dag->funcs.names.size();j++) {
+  cout << dag->funcs.names[j];
+  cout << " | ";
+}
+cout <<"\n";
+
+cout << "\ttiny_node:\n\t\t";
+cout << "TODO";
+cout <<"\n";
+
+cout << "\tgivens:\n\t\t";
+cout << dag->givens;
+cout <<"\n";
+
+cout << "\ttarget_size:\n\t\t";
+print_point(&dag->target_size);
+cout <<"\n";
+
+cout << "\thashi:\n\t\t";
+print_TinyHashMap(&dag->hashi);
+cout <<"\n";
+
+cout << "\tbinary:\n\t\t";
+for (int j=0; j<dag->binary.size();j++) {
+  cout << dag->binary[j];
+  cout << " | ";
+}
+cout <<"\n";
+
+}
+
+void print_point(point *p) {
+  cout << "x: " << p->x << ", y: " << p->y;
 }

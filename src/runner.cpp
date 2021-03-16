@@ -74,7 +74,7 @@ void run(int single_task_id = -1, int arg = -1) {
   bool training = false;
   string sample_dir = (training) ? "training" : "evaluation";
 
-  int samples = -1;
+  int samples = 10;
   if (eval) {
     sample_dir = "test";
   }
@@ -188,7 +188,7 @@ void run(int single_task_id = -1, int arg = -1) {
     int s1 = 0;
     if (!eval) s1 = (out_sizes.back() == test_out.size);
 
-    //Assemble pieces into candidates
+    //Assemble pieces into candidates (actual search is here)
     vector<Candidate> cands;
     {
       double start_time = now();
@@ -261,8 +261,9 @@ void run(int single_task_id = -1, int arg = -1) {
       writeVerdict(si, s.id, verdict[si]);
     }
     {
-      string fn = "output/answer_"+to_string(single_task_id)+"_"+to_string(arg)+".csv";
-      writeAnswersWithScores(s, fn, rec_answers, answer_scores);
+      string filename = "output/answer_"+to_string(single_task_id)+"_"+to_string(arg)+".csv";
+      vector<string> programs = {"Blue", "Red", "Orange"};
+      writeAnswersWithScores(s, filename, rec_answers, answer_scores, programs);
     }
   }
 

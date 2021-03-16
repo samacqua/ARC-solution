@@ -155,3 +155,9 @@ struct TinyNodeBank {
   }
   int size() { return node.size(); }
 };
+
+void print_TinyHashMap(TinyHashMap *tiny_hash_map);
+void print_TinyNodeBank(TinyNodeBank *tiny_node_bank);
+void print_TinyBank(TinyBank *tiny_bank);
+void print_TinyImage(TinyImage *tiny_img);
+void print_TinyNode(TinyNode *tiny_node);

@@ -4,7 +4,7 @@ DEBUG = -Wshadow -Wall -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG 
 FLAGS = -std=c++17 -g -O2 #-fopenmp # $(DEBUG)
 
 # on mac, if build errors, try deleting -lstdc++fs
-LIBS = -lstdc++
+LIBS = -lstdc++ -lstdc++fs
 
 .DEFAULT_GOAL := run
 

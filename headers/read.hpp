@@ -3,8 +3,8 @@
 struct Sample {
   vector<pair<Image,Image>> train, test;
   Image test_in, test_out;
-  string id;
-  int id_ind;
+  string id;    // task ID (ex: "f0afb749")
+  int id_ind;   // task ID index (ex: 0)
   FILE*fp;
   Sample(string filename);
   char mygetc();
@@ -26,4 +26,4 @@ struct Writer {
   ~Writer();
 };
 
-void writeAnswersWithScores(const Sample&s, string fn, vector<Image> imgs, vector<double> scores);
+void writeAnswersWithScores(const Sample&s, string filename, vector<Image> imgs, vector<double> scores, vector<string> programs);

@@ -205,3 +205,66 @@ Image TinyImage::decompress(TinyBank&bank) {
   assert(treep == 0);
   return ret;
 }
+
+void print_TinyHashMap(TinyHashMap *tiny_hash_map) {
+//   struct TinyHashMap {
+//   static constexpr double sparse_factor = 1.5, resize_step = 2;
+//   static constexpr int minsize = 1<<20;
+//   vector<hashEntry> data;
+//   vector<int> table;
+//   ull mask;
+//   };
+
+cout << "sparse_factor: " << tiny_hash_map->sparse_factor;
+cout << ", resize_step: " << tiny_hash_map->resize_step;
+cout << ", minsize: " << tiny_hash_map->minsize;
+cout << ", data: " << "TODO";
+// cout << ", table: "; // too large to print
+// for (int i=0; i<tiny_hash_map->table.size(); i++) {
+//     cout << tiny_hash_map->table[i];
+//   }
+cout << ", mask: " << tiny_hash_map->mask;
+}
+
+void print_TinyNodeBank(TinyNodeBank *tiny_node_bank) {
+  // struct TinyNodeBank {
+  //   TinyBank bank;
+  //   vector<TinyImage> imgs;
+  //   vector<TinyNode> node;
+  // };
+
+  cout << "bank: ";
+  print_TinyBank(&tiny_node_bank->bank);
+
+  cout << ", imgs: ";
+  for (int i=0; i<tiny_node_bank->imgs.size(); i++) {
+    print_TinyImage(&tiny_node_bank->imgs[i]);
+  }
+
+  cout << ", node: ";
+  for (int i=0; i<tiny_node_bank->node.size(); i++) {
+    print_TinyNode(&tiny_node_bank->node[i]);
+  }
+
+}
+
+void print_TinyBank(TinyBank *tiny_bank) {
+  // struct TinyBank {
+  //   vector<unsigned int> mem;
+  //   ll curi = 0;
+  // };
+
+  cout << "mem: ";
+  for (int i=0; i<tiny_bank->mem.size(); i++) {
+    cout << tiny_bank->mem[i] << " | ";
+  }
+  cout << ", curi: " << tiny_bank->curi;
+}
+
+void print_TinyImage(TinyImage *tiny_img) {
+  cout << "TODO";
+}
+
+void print_TinyNode(TinyNode *tiny_node) {
+  cout << "TODO";
+}

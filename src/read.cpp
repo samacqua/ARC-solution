@@ -1,5 +1,6 @@
 #include "precompiled_stl.hpp"
-#include <experimental/filesystem>
+#include <filesystem>
+// namespace fs = std::filesystem;
 
 using namespace std;
 #include "utils.hpp"
@@ -147,13 +148,13 @@ vector<Sample> readAll(string path, int maxn) { //maxn = -1
   const string base_path[2] = {"/kaggle/input/abstraction-and-reasoning-challenge/", "./dataset/"};
 
   int base_pathi = 0;
-  while (!experimental::filesystem::exists(base_path[base_pathi]+path)) {
+  while (!std::filesystem::exists(base_path[base_pathi]+path)) {
     base_pathi++;
     assert(base_pathi < 2);
   }
 
   vector<string> files;
-  for (auto magic_file_type : experimental::filesystem::directory_iterator(base_path[base_pathi]+path)) {
+  for (auto magic_file_type : std::filesystem::directory_iterator(base_path[base_pathi]+path)) {
     string name = magic_file_type.path().u8string();
     if (name.size() >= 5 && name.substr(name.size()-5,5) == ".json")
       files.push_back(name);
@@ -208,29 +209,34 @@ Writer::~Writer() {
 }
 
 
-void writeAnswersWithScores(const Sample&s, string fn, vector<Image> imgs, vector<double> scores) {
-  FILE*fp = fopen(fn.c_str(), "w");
+void writeAnswersWithScores(const Sample&s, string filename, vector<Image> imgs, vector<double> scores, vector<string> programs) {
+  
+  FILE*fp = fopen(filename.c_str(), "w");   // open file
   assert(fp);
-  fprintf(fp, "%s_%d\n", s.id.c_str(), s.id_ind);
+
+  fprintf(fp, "%s_%d\n", s.id.c_str(), s.id_ind);   // write the ID and ID int to header
+  
   assert(imgs.size() == scores.size());
   if (imgs.empty()) imgs = {dummyImg}, scores = {-1};
-  assert(imgs.size() <= 3);
+  assert(imgs.size() <= 3);   // should only be 3 candidates
 
-  for (int i = 0; i < imgs.size(); i++) {
+  for (int i = 0; i < imgs.size(); i++) { // for each submission
     Image_ img = imgs[i];
     double score = scores[i];
+    string program = programs[i];
     assert(img.p == point({0,0}));
     assert(img.w >= 1 && img.w <= 30 && img.h >= 1 && img.h <= 30);
     fprintf(fp, "|");
-    for (int i = 0; i < img.h; i++) {
-      for (int j = 0; j < img.w; j++) {
-	int c = img(i,j);
-	assert(c >= 0 && c <= 9);
-	fprintf(fp, "%d", c);
+    for (int i = 0; i < img.h; i++) {   // for each row
+      for (int j = 0; j < img.w; j++) {   // write row of submission
+	      int cell = img(i,j);
+	      assert(cell >= 0 && cell <= 9);
+	      fprintf(fp, "%d", cell);
       }
-      fprintf(fp, "|");
+      fprintf(fp, "|");   // seperate rows with |
     }
-    fprintf(fp, " %.20f", score);
+    fprintf(fp, " %.20f", score);   // write the submissions' score (ranked by DSL)
+    fprintf(fp, " %s", program.c_str());
     fprintf(fp, "\n");
   }
   fclose(fp);

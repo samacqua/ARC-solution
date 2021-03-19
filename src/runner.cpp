@@ -55,26 +55,21 @@ int MAXDEPTH = -1; //Argument
 int MAXSIDE = 100, MAXAREA = 40*40, MAXPIXELS = 40*40*5; //Just default values
 int print_times = 1, print_mem = 1, print_nodes = 1;
 
-void run(int single_task_id = -1, int arg = -1) {
+void run(int single_task_id = -1, int max_depth = -1, bool training = true) {
 
-  // parse args
-  int no_norm   = (arg >= 10 && arg < 20);
-  int add_flips = (arg >= 20 && arg < 40);
-  int add_flip_id = (arg >= 30 && arg < 40 ? 7 : 6);
+  // tune search based on depth
+  int no_norm   = (max_depth >= 10 && max_depth < 20);
+  int add_flips = (max_depth >= 20 && max_depth < 40);
+  int add_flip_id = (max_depth >= 30 && max_depth < 40 ? 7 : 6);
 
-  // arg is max depth i guess?
-  if (arg == -1) arg = 2;
-  MAXDEPTH = arg % 10 * 10;
+  MAXDEPTH = max_depth;
 
   int eval = 0;
   int skips = 0;
 
-  // if training == true, set inds = range(0,416) in summary.py
-  // if training == false, set inds = range(0,419) in summary.py
-  bool training = false;
   string sample_dir = (training) ? "training" : "evaluation";
 
-  int samples = 10;
+  int samples = -1;
   if (eval) {
     sample_dir = "test";
   }
@@ -261,7 +256,7 @@ void run(int single_task_id = -1, int arg = -1) {
       writeVerdict(si, s.id, verdict[si]);
     }
     {
-      string filename = "output/answer_"+to_string(single_task_id)+"_"+to_string(arg)+".csv";
+      string filename = "output/answer_"+to_string(single_task_id)+"_"+to_string(max_depth)+".csv";
       vector<string> programs = {"Blue", "Red", "Orange"};
       writeAnswersWithScores(s, filename, rec_answers, answer_scores, programs);
     }

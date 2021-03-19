@@ -1,7 +1,30 @@
+import argparse
+
+# parse command line arguments
+parser = argparse.ArgumentParser(description='Solve ARC Tasks.')
+parser.add_argument('--train', type=str, default='t', help='run on training set or validation set?')
+
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
+args = parser.parse_args()
+args.train = str2bool(args.train)
+
 inds = range(0,419)
-train = False
-if train:
+if args.train:
     inds = range(0, 416)
+
+dataset = 'Train' if args.train else 'Validation'
+print(f"\nSummarizing under assumption that you just ran the {dataset} set. If this isn't true, then run using:")
+print(f"\tpython3 summary.py --train {not args.train}\n")
 
 inds = list(inds)
 compressed = ''

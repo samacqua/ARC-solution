@@ -22,8 +22,14 @@ int main(int argc, char**argv) {
   }
   int maxdepth = -1;
   if (argc >= 3) {
-    maxdepth = atoi(argv[2]);
+    maxdepth = atoi(argv[2]) * 10;  // for some reason, max depth is encoded as 10x actual max depth
     printf("Using max depth %d\n", maxdepth);
   }
-  run(single_task_id, maxdepth);
+  bool training = true;
+  if (argc >= 4) {
+    training = argv[3];
+    printf("On Training Dataset (t) or Validation (f) %d\n", training);
+  }
+
+  run(single_task_id, maxdepth, training);
 }
